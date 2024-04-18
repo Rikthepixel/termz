@@ -1,12 +1,18 @@
 {
-  "compilerOptions": {
-
-  },
-  "includes": [
-    "src"
-  ],
-  "excludes": [
-    "bin",
-    "node_modules"
-  ]
+    "compilerOptions": {
+        "target": "es2022",
+        "module": "es2022",
+        "moduleResolution": "bundler",
+        "outDir": "bin",
+        "types": ["node"],
+        "baseUrl": ".",
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "strict": true,
+        "skipLibCheck": true
+    },
+    "include": ["src"],
+    "exclude": ["bin", "node_modules"]
 }

@@ -1,19 +1,20 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig((options) => {
-  return {
-    entry: ["src/index.ts"],
-    clean: true,
-    dts: false,
-    sourcemap: false,
-    splitting: false,
-    banner: {
-      js: "#! /usr/bin/env node"
-    },
-    minify: !options.watch,
-    outDir: "bin",
-    format: "esm",
-    bundle: !options.watch,
-    noExternal: options.watch ? undefined : [/(.*)/],
-  };
+    return {
+        entry: ["src/index.ts"],
+        banner: {
+            js: "#! /usr/bin/env node",
+        },
+        target: "es2022",
+        outDir: "bin",
+        format: "cjs",
+        clean: true,
+        dts: false,
+        sourcemap: false,
+        splitting: false,
+        minify: !options.watch,
+        bundle: !options.watch,
+        noExternal: options.watch ? undefined : [/(.*)/],
+    };
 });
