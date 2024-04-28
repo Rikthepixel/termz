@@ -2,7 +2,9 @@ import { StructError, validate } from "superstruct";
 import { Profile, ProfileSchema } from "./models/profile";
 import { Result } from "./utils/result";
 import { EoentError, readJsonFile } from "./utils/file";
-import { resolveUserHome as resolveUserHome } from "./utils/path";
+import { resolveAbsolute } from "./utils/path";
+import { writeFile } from "fs/promises";
+import path from "path";
 
 export async function readProfile(
     profileFile: string,
@@ -18,7 +20,7 @@ export async function readProfile(
     const profile = validationResult[1];
 
     for (const tab of profile.tabs) {
-        tab.directory = resolveUserHome(tab.directory ?? process.cwd());
+        tab.directory = resolveAbsolute(tab.directory ?? "./", path.dirname(profileFile));
 
         for (const pane of tab?.panes ?? []) {
             pane.displayName ??= tab.displayName;
@@ -28,4 +30,8 @@ export async function readProfile(
     }
 
     return Result.Ok(profile);
+}
+
+export async function writeProfile(profileFile: string, content: Profile) {
+    await writeFile(profileFile, JSON.stringify(content, null, 2));
 }

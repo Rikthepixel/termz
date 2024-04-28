@@ -1,5 +1,6 @@
 {
   "tabs": [
-    { "displayName": "nvim", "script": "nvim .", "profile": "Ubuntu" }
+    { "displayName": "nvim", "script": "nvim ." },
+    { "displayName": "commands" }
   ]
 }

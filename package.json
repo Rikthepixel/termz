@@ -14,14 +14,21 @@
     "bin": {
         "termz": "./bin/index.js"
     },
+    "workspaces": [
+        "./plugins/*"
+    ],
     "dependencies": {
+        "@inquirer/core": "^8.0.1",
+        "@inquirer/prompts": "^5.0.1",
         "chalk": "^5.3.0",
         "commander": "^12.0.0",
         "execa": "^8.0.1",
-        "superstruct": "^1.0.4"
+        "superstruct": "^1.0.4",
+        "window-size": "^1.1.1"
     },
     "devDependencies": {
         "@types/node": "^20.12.7",
+        "@types/window-size": "^1.1.4",
         "prettier": "^3.2.5",
         "tsup": "^8.0.2",
         "tsx": "^4.7.2",

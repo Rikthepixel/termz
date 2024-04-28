@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"module": "Node16",
+		"target": "ES2022",
+		"outDir": "out",
+		"lib": [
+			"ES2022"
+		],
+		"sourceMap": true,
+		"rootDir": "src",
+		"strict": true,
+
+        "types": ["node"],
+        "baseUrl": ".",
+        "isolatedModules": true,
+        "esModuleInterop": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "skipLibCheck": true
+	},
+    "include": ["src"],
+    "exclude": ["out", "node_modules"]
+}

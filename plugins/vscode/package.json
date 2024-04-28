@@ -1,0 +1,43 @@
+{
+  "name": "termz",
+  "displayName": "Termz",
+  "description": "TODO",
+  "version": "0.0.1",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "package": "vsce package",
+    "compile": "tsup",
+    "watch": "tsup --watch",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "engines": {
+    "vscode": "^1.88.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": []
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rikthepixel/termz.git"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.88.0",
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "@vscode/test-cli": "^0.0.8",
+    "@vscode/test-electron": "^2.3.9",
+    "@vscode/vsce": "^2.26.0",
+    "eslint": "^8.57.0",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  }
+}
