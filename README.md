@@ -2,6 +2,14 @@
 
 Setup terminals on your own terms.
 
+## Supported terminals/multiplexers
+
+- Windows Terminal
+- VSCode
+- VSCodium
+
+## Roadmaps
+
 ### V1 Roadmap
 - Document `.termz` file format
 - Support more terminals:
@@ -11,7 +19,7 @@ Setup terminals on your own terms.
     - iTerm
 
 ### V1.1 Roadmap
-- Support multiplexes:
+- Support multiplexers:
     - tmux
 
 ### V2 Roadmap
