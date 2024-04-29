@@ -3,7 +3,7 @@
 Setup terminals on your own terms.
 
 ### V1 Roadmap
-- Document `.trmz` file format
+- Document `.termz` file format
 - Support more terminals:
     - GNOME Terminal
     - Konsole
@@ -17,5 +17,5 @@ Setup terminals on your own terms.
 ### V2 Roadmap
 
 - Rewrite in Rust.
-- Make `.trmz` files executable.
+- Make `.termz` files executable.
 - Publish on `winget`, `apt`, `apk`, etc.

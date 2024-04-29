@@ -27,7 +27,7 @@ Open the VSCode integrated terminal and type one of the following:
 ### Open a specific Termz file
 
 ```sh
-> termz backend.trmz
+> termz backend.termz
 ```
 
 ### Show Termz help screen
