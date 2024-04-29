@@ -1,7 +1,7 @@
 {
     "name": "termz",
-    "version": "0.0.0",
-    "description": "Setup terminal sessions with ease",
+    "version": "0.1.0",
+    "description": "Setup terminals on your own terms",
     "author": "RikThePixel",
     "license": "GPL-3.0",
     "scripts": {

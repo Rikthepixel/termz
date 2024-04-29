@@ -1,6 +1,18 @@
 # termz
 
-Setup terminal sessions with ease.
+Setup terminals on your own terms.
+
+### V1 Roadmap
+- Document `.trmz` file format
+- Support more terminals:
+    - GNOME Terminal
+    - Konsole
+    - Kitty
+    - iTerm
+
+### V1.1 Roadmap
+- Support multiplexes:
+    - tmux
 
 ### V2 Roadmap
 
