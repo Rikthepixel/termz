@@ -185,4 +185,4 @@ async function createAction() {
     // });
 }
 
-export const createCommand = new Command("create").description("Create a new Termz profile").action(createAction);
+export const createCommand = new Command("create").description("create a new termz profile").action(createAction);

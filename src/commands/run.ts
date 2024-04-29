@@ -59,6 +59,6 @@ async function runAction(profileFile: string) {
 
 export const runCommand = new Command("run")
     .aliases(["open"])
-    .description("Opens a termz profile")
-    .addArgument(new Argument("[profile]", "The profile to open").default(".termz", ".termz"))
+    .description("opens a termz profile")
+    .addArgument(new Argument("[profile]", "the profile to open").default(".termz", ".termz"))
     .action(runAction);
