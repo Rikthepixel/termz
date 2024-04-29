@@ -6,8 +6,10 @@ import path from "path";
 import { createConnection } from "net";
 import { readFile } from "fs/promises";
 import { Profile } from "src/models/profile";
+import which from "which";
 
 const SOCKET_REGISTRY_FILE = path.join(os.tmpdir(), "termz-vscode-sockets");
+const KNOWN_CLIS = ["code", "code-insiders", "codium", "codium-insiders"] as const;
 
 async function readRegistry(): Promise<Record<string, string>> {
     return await readFile(SOCKET_REGISTRY_FILE)
@@ -22,13 +24,25 @@ async function readRegistry(): Promise<Record<string, string>> {
         .then((content) => JSON.parse(content));
 }
 
-async function hasExtension(): Promise<boolean> {
-    const { stdout } = await execa(`code --list-extensions`);
+/**
+ * Checks which VSCode clis are available
+ */
+async function getInstalledClis(): Promise<string[]> {
+    const whichPromises = KNOWN_CLIS.map(async (cli) => {
+        const whichPath: string | null = await which(cli, { nothrow: true });
+        return whichPath ? cli : null;
+    });
+
+    return await Promise.all(whichPromises).then((clis) => clis.filter(Boolean) as string[]);
+}
+
+async function hasExtension(cli: string): Promise<boolean> {
+    const { stdout } = await execa(`${cli} --list-extensions`);
     const foundExtension = stdout.split("\n").find((e) => e.endsWith(".termz"));
     return Boolean(foundExtension);
 }
 
-async function installExtension() {
+async function installExtension(cli: string) {
     let extPathOrId: null | string = null;
 
     if (process.env.NODE_ENV === "production") {
@@ -44,7 +58,7 @@ async function installExtension() {
         }
     }
 
-    await execa(`code --install-extension ${extPathOrId}`, { stdout: "inherit" });
+    await execa(`${cli} --install-extension ${extPathOrId}`, { stdout: "inherit" });
     return new Promise<void>((resolve) => setTimeout(resolve, 500)); // Wait for a second so that the plugin has time to start up
 }
 
@@ -83,9 +97,13 @@ export default {
         );
     },
     async open(profile) {
-        if (!(await hasExtension())) {
-            await installExtension();
-        }
+        const clis = await getInstalledClis();
+
+        const installPromises = clis.map(async (cli) => {
+            if (await hasExtension(cli)) return;
+            await installExtension(cli);
+        });
+        await Promise.all(installPromises);
 
         const registry = await readRegistry();
         const sendPromises = Object.values(registry).map((ipcPath) =>
