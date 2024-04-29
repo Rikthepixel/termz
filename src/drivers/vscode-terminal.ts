@@ -45,7 +45,7 @@ async function installExtension() {
     }
 
     await execa(`code --install-extension ${extPathOrId}`, { stdout: "inherit" });
-    return new Promise<void>((resolve) => setTimeout(resolve, 1000)); // Wait for a second so that the plugin has time to start up
+    return new Promise<void>((resolve) => setTimeout(resolve, 500)); // Wait for a second so that the plugin has time to start up
 }
 
 async function sendProfileToPipe(profile: Profile, ipcPath: string) {
@@ -83,7 +83,7 @@ export default {
         );
     },
     async open(profile) {
-        if (await hasExtension()) {
+        if (!(await hasExtension())) {
             await installExtension();
         }
 

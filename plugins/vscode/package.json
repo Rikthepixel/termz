@@ -1,5 +1,5 @@
 {
-  "name": "termz-vscode-driver",
+  "name": "termz",
   "displayName": "Termz",
   "author": "RikThePixel",
   "publisher": "rikthepixel",
@@ -8,8 +8,9 @@
   "license": "GPL-3.0",
   "scripts": {
     "vscode:prepublish": "npm run build",
-    "package": "vsce package --no-dependencies",
-    "publish": "vsce",
+    "package": "vsce package --no-dependencies --out ./termz.vsix",
+    "prepublish": "npm run package",
+    "publish": "vsce publish --no-dependencies --no-git-tag-version -i ./termz.vsix",
     "build": "tsup",
     "watch": "tsup --watch",
     "lint": "eslint src --ext ts"
