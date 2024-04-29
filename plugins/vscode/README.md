@@ -9,9 +9,9 @@ See ther [Termz Github](https://github.com/Rikthepixel/termz) for an indepth exp
 
 ## Usage
 
-Open the VSCode integrated terminal and type one of the following;
-
 ### Ways to call Termz
+
+Open the VSCode integrated terminal and type one of the following:
 
 #### 1. With `npx` 
 ```sh
