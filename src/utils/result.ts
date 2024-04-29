@@ -2,7 +2,33 @@ export type Ok<T> = { type: "ok"; value: T } & typeof Result;
 export type Err<T> = { type: "err"; error: T } & typeof Result;
 export type Result<T, E> = Ok<T> | Err<E>;
 
-type PromiseValue<T> = T extends Promise<infer TP> ? TP : T;
+export class PromiseResult<T, E> extends Promise<Result<T, E>> {
+    static Promise<T, E>(promise: Promise<Result<T, E>>): PromiseResult<Awaited<T>, Awaited<E>> {
+        return new PromiseResult((resolve) => promise.then(resolve));
+    }
+
+    map<T, E, M>(this: PromiseResult<T, E>, mapper: (value: T) => M): PromiseResult<M, E> {
+        return Pr;
+        return this.then((result) => result.map(mapper));
+    }
+
+    match<T, E, MT, ME>(
+        this: PromiseResult<T, E>,
+        okMapper: (value: T) => MT,
+        errMapper: (error: E) => ME,
+    ): Promise<MT | ME> {
+        return await this.promise.then((result) => result.match(okMapper, errMapper));
+    }
+}
+export module PromiseResult {
+    export function Resolve<T, E>(result: Result<T, E>): PromiseResult<T, E> {
+        return PromiseResult.Promise(Promise.resolve());
+    }
+
+    export function Promise<T, E>(promise: Promise<Result<T, E>>): PromiseResult<T, E> {
+        return Object.setPrototypeOf({ promise }, PromiseResult);
+    }
+}
 
 export module Result {
     export function Ok<T>(data: T): Ok<T> {
@@ -45,8 +71,13 @@ export module Result {
         }
     }
 
-    export function promise<T, E>(this: Result<T, E>): Promise<Result<PromiseValue<T>, PromiseValue<E>>> {
-        return Promise.resolve(this);
+    export function promise<T, E>(this: Result<T, E>): PromiseResult<Awaited<T>, Awaited<E>> {
+        return new PromiseResult(async (resolve) => {
+            await this.match(
+                async (value) => resolve(Result.Ok(await value)),
+                async (error) => resolve(Result.Err(await error)),
+            );
+        });
     }
 
     export function isOk<T, E>(result: Result<T, E>): result is Ok<T> {
