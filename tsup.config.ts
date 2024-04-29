@@ -4,7 +4,7 @@ export default defineConfig((options) => {
     return {
         entry: ["src/index.ts"],
         banner: {
-            js: "#! /usr/bin/env node",
+            js: '#! /usr/bin/env node\nprocess.env.NODE_ENV = "production"',
         },
         target: "es2022",
         outDir: "bin",

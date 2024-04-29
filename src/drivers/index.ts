@@ -1,9 +1,11 @@
 import windowsTerminal from "./windows-terminal";
-// import vscodeTerminal from "./vscode-terminal";
-// import gnomeTerminal from "./gnome-terminal";
+import vscodeTerminal from "./vscode-terminal";
+
+export const supportedDrivers = ["wt", "vscode"] as const;
+export type SupportedDrivers = (typeof supportedDrivers)[number];
 
 export const drivers = [
     windowsTerminal,
-    // vscodeTerminal,
+    vscodeTerminal,
     // gnomeTerminal
 ];

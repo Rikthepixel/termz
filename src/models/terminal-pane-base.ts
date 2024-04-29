@@ -1,6 +1,9 @@
-import { Infer, object, optional, string } from "superstruct";
+import { supportedDrivers } from "src/drivers";
+import { Infer, array, enums, object, optional, string } from "superstruct";
 
 export const TerminalPaneBaseSchema = object({
+    exclude: optional(array(enums(supportedDrivers))),
+    include: optional(array(enums(supportedDrivers))),
     displayName: optional(string()),
     profile: optional(string()),
     directory: optional(string()),

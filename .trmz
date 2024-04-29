@@ -1,6 +1,7 @@
 {
   "tabs": [
-    { "displayName": "nvim", "script": "nvim ." },
+    { "displayName": "nvim", "script": "nvim .", "exclude": ["vscode"] },
     { "displayName": "commands" }
   ]
 }
+ 

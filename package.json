@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "description": "Setup terminal sessions with ease",
     "author": "RikThePixel",
-    "license": "MIT",
+    "license": "GPL-3.0",
     "scripts": {
         "build": "tsup",
         "watch": "tsup --watch",

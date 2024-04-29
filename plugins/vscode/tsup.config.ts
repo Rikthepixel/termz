@@ -7,11 +7,13 @@ export default defineConfig((options) => {
         outDir: "out",
         format: "cjs",
         clean: true,
-        dts: false,
-        sourcemap: false,
+        dts: true,
+        sourcemap: !!options.watch,
         splitting: false,
         minify: !options.watch,
-        bundle: !options.watch,
-        noExternal: options.watch ? undefined : [/(.*)/],
+        bundle: true,
+        treeshake: !options.watch,
+        noExternal: options.watch ? undefined : [/^(?!vscode).*/],
+        external: ["vscode"],
     };
 });

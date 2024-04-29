@@ -1,5 +1,5 @@
 import os from "os";
-import { isAbsolute, join } from "path";
+import { isAbsolute, resolve } from "path";
 
 export function resolveUserHome(path: string) {
     if (path.startsWith("~")) {
@@ -13,7 +13,7 @@ export function resolveAbsolute(path: string, from: string = process.cwd()) {
         return path.replace("~", os.homedir());
     }
     if (!isAbsolute(path)) {
-        return join(from, path);
+        return resolve(from, path);
     }
     return path;
 }

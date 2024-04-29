@@ -1,0 +1,30 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "shell",
+            "label": "npm: watch",
+            "detail": "tsup --watch",
+            "command": "npm",
+            "args": [
+                "run",
+                "watch",
+                "-w",
+                "plugins/vscode"
+            ],
+            "presentation": {
+                "reveal": "never",
+                "group": "watchers"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [
+                "$tsup-watch",
+                "$tsup-tsc-watch"
+            ],
+            "isBackground": true
+        },
+    ]
+}

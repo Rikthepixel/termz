@@ -1,4 +1,4 @@
-import { Driver } from "src/models/driver";
+import { Driver, criteria } from "src/models/driver";
 import { EoentError } from "src/utils/file";
 import { logErrorBanner, logStructError } from "src/utils/logging";
 import { StructError } from "superstruct";
@@ -14,10 +14,11 @@ export default {
         paneScript: false,
         tabScript: false,
     },
-    detect(): boolean {
-        return Boolean(process.env.WT_SESSION) && Boolean(process.env.WT_PROFILE_ID);
+    detect() {
+        return criteria(Boolean(process.env.WT_SESSION), Boolean(process.env.WT_PROFILE_ID));
     },
-    async open(tabs) {
+    async open(profile) {
+        const tabs = profile.tabs;
         const settings = await readWtSettings();
 
         await settings.match(

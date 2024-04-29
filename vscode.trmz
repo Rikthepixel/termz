@@ -1,0 +1,11 @@
+{
+  "tabs": [
+    { 
+        "displayName": "commands", 
+        "panes": [
+            { "axis": "horizontal", "displayName": "nvim", "script": "nvim ." }
+        ] 
+    }
+  ]
+}
+ 

@@ -5,11 +5,21 @@ import { drivers } from "src/drivers";
 import { StructError } from "superstruct";
 import { logErrorBanner, logStructError } from "src/utils/logging";
 import { EoentError } from "src/utils/file";
+import { Driver } from "src/models/driver";
 
 async function runAction(profileFile: string) {
     console.log();
 
-    const driver = drivers.find((term) => term.detect());
+    let likelyhood = 0;
+    let driver: null | Driver = null;
+
+    for (const searchDriver of drivers) {
+        const searchLikelyhood = searchDriver.detect();
+        if (likelyhood <= searchLikelyhood) {
+            likelyhood = searchLikelyhood;
+            driver = searchDriver;
+        }
+    }
 
     if (!driver) {
         logErrorBanner("No terminal/multiplexer could be detected.");
@@ -25,7 +35,7 @@ async function runAction(profileFile: string) {
         async (profile) => {
             console.log(chalk.gray(`Setting up:`), profileFile);
 
-            await driver.open(profile.tabs);
+            await driver.open(profile);
 
             console.log(chalk.greenBright("Successfully set-up terminal session 🎉\n"));
         },

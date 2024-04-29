@@ -1,0 +1,17 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Run Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}/plugins/vscode"
+			],
+			"outFiles": [
+				"${workspaceFolder}/plugins/vscode/out/**/*.js"
+			],
+			"preLaunchTask": "npm: watch"
+		}
+	]
+}

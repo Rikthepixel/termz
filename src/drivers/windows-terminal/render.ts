@@ -3,6 +3,7 @@ import { WtProfile, WtSettings } from "./settings";
 import { $ } from "execa";
 import { TerminalPane } from "src/models/terminal-pane";
 import chalk from "chalk";
+import { shouldRender } from "src/utils/driver";
 
 const supportedCommandLines = [
     {
@@ -50,6 +51,9 @@ function makeScriptArgs(script: string, profile: WtProfile): string[] {
 }
 
 export async function makePane(pane: TerminalPane, settings: WtSettings) {
+    if (!shouldRender(pane, "wt")) {
+        return;
+    }
     const args: string[] = [];
 
     if (pane.displayName) {
@@ -89,6 +93,10 @@ export async function makePane(pane: TerminalPane, settings: WtSettings) {
 }
 
 export async function makeTab(tab: TerminalTab, settings: WtSettings) {
+    if (!shouldRender(tab, "wt")) {
+        return;
+    }
+
     const args: string[] = [];
 
     if (tab.displayName) {

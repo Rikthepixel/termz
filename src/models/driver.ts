@@ -1,4 +1,4 @@
-import { TerminalTab } from "./terminal-tab";
+import { Profile } from "./profile";
 
 export type Driver = {
     name: string;
@@ -9,6 +9,16 @@ export type Driver = {
         tabScript: boolean;
         paneScript: boolean;
     };
-    detect(): boolean;
-    open(tabs: TerminalTab[]): Promise<void>;
+    detect(): number;
+    open(profile: Profile): Promise<void>;
 };
+
+export function criteria(...clauses: boolean[]) {
+    let trueCount = 0;
+    for (const clause of clauses) {
+        if (clause) {
+            trueCount++;
+        }
+    }
+    return trueCount;
+}
