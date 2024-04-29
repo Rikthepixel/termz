@@ -14,8 +14,14 @@
     "bin": {
         "termz": "./bin/index.js"
     },
+    "files": [
+      "bin",
+      "LICENSE",
+      "package.json",
+      "README.md"
+    ],
     "workspaces": [
-        "./plugins/*"
+      "./plugins/*"
     ],
     "dependencies": {
         "@inquirer/core": "^8.0.1",
