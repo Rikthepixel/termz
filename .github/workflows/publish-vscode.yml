@@ -18,7 +18,7 @@ jobs:
               id: version-check
               uses: jipaix/package-json-updated-action@v1.0.4
               with:
-                    path: plugins/vscode/package.json
+                    path: ./plugins/vscode/package.json
               env:
                     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
