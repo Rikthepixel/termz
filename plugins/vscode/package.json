@@ -10,8 +10,8 @@
     "vscode:prepublish": "npm run build",
     "package": "vsce package --no-dependencies --out ./termz.vsix",
     "prepublish": "npm run package",
-    "publish:ms": "vsce publish --no-dependencies --no-git-tag-version -i ./termz.vsix",
-    "publish:os": "osvx publish --no-dependencies -i ./termz.vsix",
+    "publish:vsce": "vsce publish --no-dependencies --no-git-tag-version -i ./termz.vsix",
+    "publish:ovsx": "ovsx publish --no-dependencies -i ./termz.vsix",
     "build": "tsup",
     "watch": "tsup --watch",
     "lint": "eslint src --ext ts"

@@ -58,9 +58,9 @@ jobs:
             matrix:
                 marketplace:
                   - name: Open VSX
-                    key: os
+                    key: ovsx
                   - name: VSCode marketplace
-                    key: ms
+                    key: vsce
         steps:
             - uses: actions/checkout@v4
             - name: Setup node
