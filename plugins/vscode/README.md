@@ -42,9 +42,9 @@ Open the VSCode integrated terminal and type one of the following:
 
 ## Release Notes
 
-### [1.0.2] Automated deployment
+### [1.0.2...1.03] Automated deployment
 
-Simply a test release to check if automated deployment is working as expected.
+Simply test releases to check if automated deployment is working as expected.
 
 ### [1.0.1] Increase compatibility
 

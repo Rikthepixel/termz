@@ -31,7 +31,7 @@ jobs:
 
     build:
         needs: [package-version]
-        if: ${{ needs.package-version.outputs.changed == true }}
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
 
     publish:
         needs: [package-version, build]
-        if: ${{ needs.package-version.outputs.changed == true }}
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
@@ -82,7 +82,7 @@ jobs:
 
     release:
         needs: [package-version, build]
-        if: ${{ needs.package-version.outputs.changed == true }}
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
         runs-on: ubuntu-latest
         permissions:
               contents: write
