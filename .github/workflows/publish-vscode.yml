@@ -14,9 +14,13 @@ jobs:
         steps:
           - name: Checkout current commit
             uses: actions/checkout@v4
+            with: 
+                fetch-depth: 2
           - name: Get current package.json version
             id: current
-            run: echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
+            run: |
+                cat plugins/vscode/package.json | jq .version -r
+                echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
 
           - name: Get previous commit ref
             id: previous_commit
@@ -27,7 +31,9 @@ jobs:
                 ref: ${{ steps.previous_commit.outputs.hash }}
           - name: Get previous package.json version
             id: previous
-            run: echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
+            run: |
+                cat plugins/vscode/package.json | jq .version -r
+                echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
 
           - name: Set output
             run: echo "changed=${{ steps.previous.outputs.version != steps.previous.outputs.version }}" >> $GITHUB_OUTPUT
