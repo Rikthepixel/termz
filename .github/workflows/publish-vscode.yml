@@ -73,7 +73,10 @@ jobs:
             - uses: actions/download-artifact@v4
               with:
                     name: vscode-extension
-                    path: plugins/vscode/termz.vsix
+                    path: plugins/vscode
+            - run: |
+                ls -R
+                ls -R plugins/vscode
             - name: Publishing to ${{ matrix.marketplace.name }}
               run: npm run publish:${{ matrix.marketplace.key }} -w plugins/vscode
               env:
@@ -92,7 +95,6 @@ jobs:
             - uses: actions/download-artifact@v4
               with:
                     name: vscode-extension
-                    path: termz.vsix  
             - name: Create tag
               id: tag
               uses: laputansoft/github-tag-action@v4.6
