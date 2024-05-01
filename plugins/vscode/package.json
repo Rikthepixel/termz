@@ -10,7 +10,8 @@
     "vscode:prepublish": "npm run build",
     "package": "vsce package --no-dependencies --out ./termz.vsix",
     "prepublish": "npm run package",
-    "publish": "vsce publish --no-dependencies --no-git-tag-version -i ./termz.vsix",
+    "publish:ms": "vsce publish --no-dependencies --no-git-tag-version -i ./termz.vsix",
+    "publish:os": "osvx publish --no-dependencies -i ./termz.vsix",
     "build": "tsup",
     "watch": "tsup --watch",
     "lint": "eslint src --ext ts"
@@ -43,6 +44,7 @@
     "@typescript-eslint/parser": "^7.7.1",
     "@vscode/vsce": "^2.26.0",
     "eslint": "^8.57.0",
+    "ovsx": "^0.9.1",
     "tsup": "^8.0.2",
     "typescript": "^5.4.5"
   },

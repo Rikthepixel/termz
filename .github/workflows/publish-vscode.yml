@@ -1,0 +1,98 @@
+name: "Publish VSCode extension"
+
+on:
+    push: 
+        branches:
+            - main
+
+jobs:
+    package-version:
+        runs-on: ubuntu-latest
+        outputs:
+            has-changed: ${{ steps.version-check.outputs.has-updated }}
+            version: ${{ steps.version-check.outputs.current-version }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Check version
+              id: version-check
+              uses: MontyD/package-json-updated-action
+              with:
+                    path: plugins/vscode/package.json
+              env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    build:
+        needs: [package-version]
+        if: ${{ needs.package-version.outputs.has-changed }}
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                    node-version: 20
+                    cache: npm
+            - name: Package VSIX
+              run: npm run package -w plugins/vscode
+            - uses: actions/upload-artifact@v4
+              with:
+                    name: vscode-extension
+                    path: plugins/vscode/termz.vsix
+
+    publish:
+        needs: [package-version, build]
+        if: ${{ needs.package-version.outputs.has-changed }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                marketplace:
+                  - name: Open VSX
+                    key: os
+                  - name: VSCode marketplace
+                    key: ms
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - uses: actions/download-artifact@v4
+              with:
+                    name: vscode-extension
+                    path: plugins/vscode/termz.vsix
+            - name: Publishing to ${{ matrix.marketplace.name }}
+              run: npm run publish:${{ martix.marketplace.key }} -w plugins/vscode
+              env:
+                    OVSX_PAT: ${{ secrets.OPENVSX_MARKETPLACE_ACCESS_TOKEN }}
+                    VSCE_PAT: ${{ secrets.VSCODE_MARKETPLACE_ACCESS_TOKEN }}
+
+    release:
+        needs: [package-version, build]
+        if: ${{ needs.package-version.outputs.has-changed }}
+        runs-on: ubuntu-latest
+        permissions:
+              contents: write
+              pull-requests: write
+        steps:
+            - uses: actions/download-artifact@v4
+              with:
+                    name: vscode-extension
+                    path: termz.vsix  
+            - name: Create tag
+              id: tag
+              uses: laputansoft/github-tag-action@v4.6
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  tag: vscode-v${{ needs.package-version.outputs.version }}
+            - name: Create Release
+              uses: ncipollo/release-action@v1.9.0
+              with:
+                  name: VSCode extension v${{ needs.package-version.outputs.version }}
+                  body: ${{ steps.tag.outputs.changelog }}
+                  tag: ${{ steps.tag.outputs.new_tag }}
+                  generateReleaseNotes: true
+                  artifacts: termz.vsix
+            
+
+
+            
