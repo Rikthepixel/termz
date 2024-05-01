@@ -9,18 +9,26 @@ jobs:
     package-version:
         runs-on: ubuntu-latest
         outputs:
-            has-changed: ${{ steps.version-check.outputs.has-updated }}
-            version: ${{ steps.version-check.outputs.current-version }}
+            has-changed: ${{ steps.previous_version.outputs.stdout != steps.current_version.outputs.stdout }}
+            version: ${{ steps.current_version.outputs.stdout }}
         steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-            - name: Check version
-              id: version-check
-              uses: jipaix/package-json-updated-action@v1.0.4
-              with:
-                    path: ./plugins/vscode/package.json
-              env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          - name: Checkout code
+            uses: actions/checkout@v2
+
+          - name: Get previous commit hash
+            id: previous_commit
+            run: echo "::set-output name=hash::$(git rev-parse HEAD^1)"
+
+          - name: Get previous package.json version
+            id: previous_version
+            run: |
+              git show $(echo "${{ steps.previous_commit.outputs.hash }}") -- package.json | grep '"version":' | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/' | tail -n 1
+            continue-on-error: true
+
+          - name: Get current package.json version
+            id: current_version
+            run: |
+              cat package.json | grep '"version":' | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/' | tail -n 1
 
     build:
         needs: [package-version]
