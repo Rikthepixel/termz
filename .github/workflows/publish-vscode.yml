@@ -61,7 +61,7 @@ jobs:
                     name: vscode-extension
                     path: plugins/vscode/termz.vsix
             - name: Publishing to ${{ matrix.marketplace.name }}
-              run: npm run publish:${{ martix.marketplace.key }} -w plugins/vscode
+              run: npm run publish:${{ matrix.marketplace.key }} -w plugins/vscode
               env:
                     OVSX_PAT: ${{ secrets.OPENVSX_MARKETPLACE_ACCESS_TOKEN }}
                     VSCE_PAT: ${{ secrets.VSCODE_MARKETPLACE_ACCESS_TOKEN }}
