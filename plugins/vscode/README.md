@@ -42,6 +42,10 @@ Open the VSCode integrated terminal and type one of the following:
 
 ## Release Notes
 
+### [1.0.2] Automated deployment
+
+Simply a test release to check if automated deployment is working as expected.
+
 ### [1.0.1] Increase compatibility
 
 - Increased compatibility to VSCode 1.70 and above instead of 1.88 and above.
