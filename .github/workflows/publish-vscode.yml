@@ -9,7 +9,7 @@ jobs:
     package-version:
         runs-on: ubuntu-latest
         outputs:
-            changed: ${{ steps.previous.outputs.version != steps.previous.outputs.version }}
+            changed: ${{ steps.diff.outputs.changed }}
             version: ${{ steps.current.outputs.version }}
         steps:
           - name: Checkout current commit
@@ -35,9 +35,13 @@ jobs:
                 cat plugins/vscode/package.json | jq .version -r
                 echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
 
+          - name: Set output
+            id: diff
+            run: echo "changed=${{ steps.previous.outputs.version != steps.previous.outputs.version }}" >> $GITHUB_OUTPUT
+
     build:
         needs: [package-version]
-        if: ${{ needs.package-version.outputs.changed }}
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -57,7 +61,7 @@ jobs:
 
     publish:
         needs: [package-version, build]
-        if: ${{ needs.package-version.outputs.changed }}
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
@@ -88,7 +92,7 @@ jobs:
 
     release:
         needs: [package-version, build]
-        if: ${{ needs.package-version.outputs.changed }}
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
         runs-on: ubuntu-latest
         permissions:
               contents: write
