@@ -12,6 +12,12 @@ jobs:
             changed: ${{ steps.diff.outputs.changed }}
             version: ${{ steps.current.outputs.version }}
         steps:
+          - name: Checkout current commit
+            uses: actions/checkout@v4
+          - name: Get current package.json version
+            id: current
+            run: echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
+
           - name: Get previous commit ref
             id: previous_commit
             run: echo "hash=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
@@ -23,11 +29,6 @@ jobs:
             id: previous
             run: echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
 
-          - name: Checkout current commit
-            uses: actions/checkout@v4
-          - name: Get current package.json version
-            id: current
-            run: echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
           - name: Set output
             run: echo "changed=${{ steps.previous.outputs.version != steps.previous.outputs.version }}" >> $GITHUB_OUTPUT
 
