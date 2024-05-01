@@ -1,9 +1,9 @@
 import { cp } from "fs/promises";
-import { execa } from "execa";
+import { $ } from "execa";
 import chalk from "chalk";
 
 console.log(chalk.blueBright("Building VSCode plugin"));
-await execa("npm run package -w plugins/vscode", { stdout: "inherit" });
+await $({ stdout: "inherit" })`npm run package -w plugins/vscode`;
 console.log(chalk.blueBright("Done building VSCode plugin"));
 
 console.log(chalk.blueBright("Copying VSCode plugin into output directory"));

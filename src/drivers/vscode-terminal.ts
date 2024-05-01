@@ -1,4 +1,4 @@
-import { execa } from "execa";
+import { $ } from "execa";
 import { Driver, criteria } from "../models/driver";
 import { existsSync } from "fs";
 import os from "os";
@@ -45,18 +45,18 @@ async function getExtensionId(): Promise<string> {
         if (existsSync(pluginVsix)) {
             return pluginVsix;
         } else {
-            await execa("npm run package -w plugins/vscode");
+            await $`npm run package -w plugins/vscode"`;
             return pluginVsix;
         }
     }
 }
 
 async function syncExtension(cli: string, extensionId: string) {
-    const { stdout } = await execa(`${cli} --list-extensions`);
+    const { stdout } = await $`${cli} --list-extensions`;
     const foundExtension = stdout.split("\n").find((e) => e.endsWith(".termz"));
     if (foundExtension) return;
 
-    await execa(`${cli} --install-extension ${extensionId}`, { stdout: "inherit" });
+    await $({ stdout: "inherit" })`${cli} --install-extension ${extensionId}`;
 }
 
 async function sendProfileToPipe(profile: Profile, ipcPath: string) {
