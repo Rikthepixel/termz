@@ -109,7 +109,7 @@ jobs:
               with:
                   name: VSCode extension v${{ needs.package-version.outputs.version }}
                   body: ${{ steps.tag.outputs.changelog }}
-                  tag: ${{ steps.tag.outputs.new_tag }}
+                  tag: vscode-v${{ needs.package-version.outputs.version }}
                   generateReleaseNotes: true
                   artifacts: termz.vsix
                   draft: true
