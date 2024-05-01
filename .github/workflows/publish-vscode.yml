@@ -9,8 +9,8 @@ jobs:
     package-version:
         runs-on: ubuntu-latest
         outputs:
-            has-changed: ${{ fromJSON(steps.previous_version.outputs.stdout).version != fromJSON(steps.current_version.outputs.stdout).version }}
-            version: ${{ fromJSON(steps.current_version.outputs.stdout).version }}
+            has-changed: ${{ steps.previous_version.outputs.stdout != steps.current_version.outputs.stdout }}
+            version: ${{ steps.current_version.outputs.stdout }}
         steps:
           - name: Get previous commit ref
             id: previous_commit
@@ -21,13 +21,13 @@ jobs:
                 ref: ${{ steps.previous_commit.outputs.hash }}
           - name: Get previous package.json version
             id: previous_version
-            run: cat package.json
+            run: cat plugins/vscode/package.json | jq .version -r
 
           - name: Checkout code
             uses: actions/checkout@v4
           - name: Get current package.json version
             id: current_version
-            run: cat package.json
+            run: cat plugins/vscode/package.json | jq .version -r
 
     build:
         needs: [package-version]
