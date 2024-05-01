@@ -16,7 +16,7 @@ jobs:
               uses: actions/checkout@v4
             - name: Check version
               id: version-check
-              uses: MontyD/package-json-updated-action@1.0.1
+              uses: jipaix/package-json-updated-action@v1.0.4
               with:
                     path: plugins/vscode/package.json
               env:
