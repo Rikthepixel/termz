@@ -9,7 +9,7 @@ jobs:
     package-version:
         runs-on: ubuntu-latest
         outputs:
-            changed: ${{ steps.previous.outputs.version != steps.previous.outputs.version }}
+            changed: ${{ steps.diff.outputs.changed }}
             version: ${{ steps.current.outputs.version }}
         steps:
           - name: Get previous commit ref
@@ -28,8 +28,8 @@ jobs:
           - name: Get current package.json version
             id: current
             run: echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
-          - name: Check diff
-            run: echo ${{ steps.previous.outputs.version != steps.previous.outputs.version }}
+          - name: Set output
+            run: echo "${{ steps.previous.outputs.version != steps.previous.outputs.version }}" >> $GITHUB_OUTPUT
 
     build:
         needs: [package-version]
