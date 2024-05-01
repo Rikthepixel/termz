@@ -42,6 +42,11 @@ Open the VSCode integrated terminal and type one of the following:
 
 ## Release Notes
 
+### [1.0.1] Increase compatibility
+
+- Increased compatibility to VSCode 1.70 and above instead of 1.88 and above.
+  - Allows for the usage or MrCode and older VSCode versions
+
 ### [1.0.0] Intial release
 
 - Initial release

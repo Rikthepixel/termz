@@ -5,7 +5,7 @@ Setup terminals on your own terms.
 ## Supported terminals/multiplexers
 
 - Windows Terminal
-- VSCode (VSCodium, MrCode)
+- VSCode, VSCodium, MrCode (`v1.70` and above)
 
 ## Roadmaps
 

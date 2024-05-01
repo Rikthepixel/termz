@@ -12,7 +12,7 @@
         "format": "prettier -w ."
     },
     "bin": {
-        "termz": "./bin/index.js"
+        "termz": "bin/index.js"
     },
     "files": [
         "bin",

@@ -4,7 +4,7 @@
   "author": "RikThePixel",
   "publisher": "rikthepixel",
   "description": "Set-up terminal sessions on your own terms",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "GPL-3.0",
   "scripts": {
     "vscode:prepublish": "npm run build",
@@ -16,7 +16,7 @@
     "lint": "eslint src --ext ts"
   },
   "engines": {
-    "vscode": "^1.88.0"
+    "vscode": "^1.70.0"
   },
   "categories": [
     "Other"
@@ -38,7 +38,7 @@
   "devDependencies": {
     "@types/node": "18.x",
     "@types/uuid": "^9.0.8",
-    "@types/vscode": "^1.88.0",
+    "@types/vscode": "^1.70",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "@vscode/vsce": "^2.26.0",
