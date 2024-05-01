@@ -9,26 +9,25 @@ jobs:
     package-version:
         runs-on: ubuntu-latest
         outputs:
-            has-changed: ${{ steps.previous_version.outputs.stdout != steps.current_version.outputs.stdout }}
-            version: ${{ steps.current_version.outputs.stdout }}
+            has-changed: ${{ fromJSON(steps.previous_version.outputs.stdout).version != fromJSON(steps.current_version.outputs.stdout).version }}
+            version: ${{ fromJSON(steps.current_version.outputs.stdout).version }}
         steps:
-          - name: Checkout code
-            uses: actions/checkout@v4
-
-          - name: Get previous commit hash
+          - name: Get previous commit ref
             id: previous_commit
             run: echo "hash=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
-
+          - name: Checkout code
+            uses: actions/checkout@v4
+            with:
+                ref: ${{ steps.previous_commit.outputs.hash }}
           - name: Get previous package.json version
             id: previous_version
-            run: |
-              git show $(echo "${{ steps.previous_commit.outputs.hash }}") -- package.json | grep '"version":' | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/' | tail -n 1
-            continue-on-error: true
+            run: cat package.json
 
+          - name: Checkout code
+            uses: actions/checkout@v4
           - name: Get current package.json version
             id: current_version
-            run: |
-              cat package.json | grep '"version":' | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/' | tail -n 1
+            run: cat package.json
 
     build:
         needs: [package-version]
