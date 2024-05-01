@@ -34,15 +34,14 @@ jobs:
         if: ${{ needs.package-version.outputs.changed }}
         runs-on: ubuntu-latest
         steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
             - name: Setup node
               uses: actions/setup-node@v4
               with:
                     node-version: 20
                     cache: npm
             - name: Install dependencies
-              run: npm i -ws
+              run: npm i -ws --include-workspace-root
             - name: Package VSIX
               run: npm run package -w plugins/vscode
             - uses: actions/upload-artifact@v4
@@ -63,15 +62,14 @@ jobs:
                   - name: VSCode marketplace
                     key: ms
         steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+            - uses: actions/checkout@v4
             - name: Setup node
               uses: actions/setup-node@v4
               with:
                     node-version: 20
                     cache: npm
             - name: Install dependencies
-              run: npm i -ws
+              run: npm i -ws --include-workspace-root
             - uses: actions/download-artifact@v4
               with:
                     name: vscode-extension
@@ -90,6 +88,7 @@ jobs:
               contents: write
               pull-requests: write
         steps:
+            - uses: actions/checkout@v4
             - uses: actions/download-artifact@v4
               with:
                     name: vscode-extension
