@@ -31,7 +31,7 @@ jobs:
 
     build:
         needs: [package-version]
-        if: ${{ needs.package-version.outputs.changed }}
+        if: ${{ needs.package-version.outputs.changed == true }}
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
@@ -51,7 +51,7 @@ jobs:
 
     publish:
         needs: [package-version, build]
-        if: ${{ needs.package-version.outputs.changed }}
+        if: ${{ needs.package-version.outputs.changed == true }}
         runs-on: ubuntu-latest
         strategy:
             fail-fast: false
@@ -74,9 +74,6 @@ jobs:
               with:
                     name: vscode-extension
                     path: plugins/vscode
-            - run: |
-                ls -R
-                ls -R plugins/vscode
             - name: Publishing to ${{ matrix.marketplace.name }}
               run: npm run publish:${{ matrix.marketplace.key }} -w plugins/vscode
               env:
@@ -85,7 +82,7 @@ jobs:
 
     release:
         needs: [package-version, build]
-        if: ${{ needs.package-version.outputs.changed }}
+        if: ${{ needs.package-version.outputs.changed == true }}
         runs-on: ubuntu-latest
         permissions:
               contents: write
