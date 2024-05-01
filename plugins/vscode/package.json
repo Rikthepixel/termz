@@ -4,7 +4,7 @@
   "author": "RikThePixel",
   "publisher": "rikthepixel",
   "description": "Set-up terminal sessions on your own terms",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "license": "GPL-3.0",
   "scripts": {
     "vscode:prepublish": "npm run build",
