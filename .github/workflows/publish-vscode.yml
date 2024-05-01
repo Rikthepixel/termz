@@ -13,11 +13,11 @@ jobs:
             version: ${{ steps.current_version.outputs.stdout }}
         steps:
           - name: Checkout code
-            uses: actions/checkout@v2
+            uses: actions/checkout@v4
 
           - name: Get previous commit hash
-            id: previous_commit
-            run: echo "::set-output name=hash::$(git rev-parse HEAD^1)"
+            id: previous_commit'
+            run: echo "hash=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
 
           - name: Get previous package.json version
             id: previous_version
