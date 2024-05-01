@@ -5,7 +5,7 @@
 Termz automatically sets up terminal sessions and executes commands. Note that this extensions does not do anything on its own. 
 You need to call `termz` in terminal to open sessions. 
 
-See ther [Termz Github](https://github.com/Rikthepixel/termz) for an indepth explanation on what Termz is.
+See the [Termz Github](https://github.com/Rikthepixel/termz) for an indepth explanation on what Termz is.
 
 ## Usage
 
