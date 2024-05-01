@@ -28,6 +28,8 @@ jobs:
           - name: Get current package.json version
             id: current
             run: echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
+          - name: Check diff
+            run: echo ${{ steps.previous.outputs.version != steps.previous.outputs.version }}
 
     build:
         needs: [package-version]
