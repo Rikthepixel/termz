@@ -29,9 +29,7 @@ async function runAction(profileFile: string) {
 
     console.log(chalk.gray("Detected terminal/multiplexer:"), driver.name);
 
-    const profile = await readProfile(profileFile);
-
-    await profile.match(
+    await readProfile(profileFile).match(
         async (profile) => {
             console.log(chalk.gray(`Setting up:`), profileFile);
 

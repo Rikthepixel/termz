@@ -1,7 +1,7 @@
 import { existsSync } from "fs";
 import { EoentError, readJsonFile } from "src/utils/file";
 import { resolveUserHome } from "src/utils/path";
-import { Result } from "src/utils/result";
+import { PromiseResult, err, ok } from "src/utils/result";
 import { Infer, StructError, array, optional, string, type, validate } from "superstruct";
 
 const WtProfileSchema = type({
@@ -30,7 +30,7 @@ export class NoWtSettingsError extends Error {
     }
 }
 
-async function getWtSettingsPath(): Promise<Result<string, NoWtSettingsError>> {
+function getWtSettingsPath() {
     const possiblePaths = [
         "~/AppData/Local/Microsoft/Windows Terminal/settings.json",
         "~/AppData/Local/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json",
@@ -46,32 +46,21 @@ async function getWtSettingsPath(): Promise<Result<string, NoWtSettingsError>> {
             }),
     );
 
-    const paths = await Promise.all(pathPromises);
-    const path = paths.find((path) => path.exists);
-    if (!path) {
-        return Result.Err(new NoWtSettingsError("Windows Terminal settings could not be found.", possiblePaths));
-    }
+    const promise = Promise.all(pathPromises).then((paths) => {
+        const path = paths.find((path) => path.exists);
+        if (!path) return err(new NoWtSettingsError("Windows Terminal settings could not be found.", possiblePaths));
+        return ok(resolveUserHome(path.path));
+    });
 
-    return Result.Ok(resolveUserHome(path.path));
+    return PromiseResult.Promise(promise);
 }
 
-export async function readWtSettings(): Promise<
-    Result<WtSettings, EoentError | SyntaxError | StructError | NoWtSettingsError>
-> {
-    const path = await getWtSettingsPath();
-    if (Result.isErr(path)) {
-        return path;
-    }
-
-    const content = await readJsonFile(path.value);
-    if (Result.isErr(content)) {
-        return content;
-    }
-
-    const validationResult = validate(content.value, WtSettingsSchema, { coerce: true });
-    if (validationResult[0]) {
-        return Result.Err(validationResult[0]);
-    }
-
-    return Result.Ok(validationResult[1]);
+export function readWtSettings() {
+    return getWtSettingsPath()
+        .flatMap(async (path) => await readJsonFile(path))
+        .flatMap((content) => {
+            const validationResult = validate(content, WtSettingsSchema, { coerce: true });
+            if (validationResult[0]) return err(validationResult[0]);
+            return ok(validationResult[1]);
+        });
 }

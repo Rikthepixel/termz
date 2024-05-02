@@ -19,9 +19,8 @@ export default {
     },
     async open(profile) {
         const tabs = profile.tabs;
-        const settings = await readWtSettings();
 
-        await settings.match(
+        await readWtSettings().match(
             async (settings) => {
                 for (const tab of tabs) {
                     await makeTab(tab, settings);

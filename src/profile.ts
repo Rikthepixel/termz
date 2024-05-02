@@ -1,35 +1,29 @@
-import { StructError, validate } from "superstruct";
+import { validate } from "superstruct";
 import { Profile, ProfileSchema } from "./models/profile";
-import { PromiseResult, Result } from "./utils/result";
-import { EoentError, readJsonFile } from "./utils/file";
+import { err, ok } from "./utils/result";
+import { readJsonFile } from "./utils/file";
 import { resolveAbsolute } from "./utils/path";
 import { writeFile } from "fs/promises";
 import path from "path";
 
-export async function readProfile(
-    profileFile: string,
-): PromiseResult<Profile, SyntaxError | StructError | EoentError> {
-    const content = await readJsonFile(profileFile);
+export function readProfile(profileFile: string) {
+    return readJsonFile(profileFile).flatMap((content) => {
+        const validationResult = validate(content, ProfileSchema);
+        if (validationResult[0]) return err(validationResult[0]);
+        const profile = validationResult[1];
 
-    if (Result.isErr(content)) {
-        return PromiseResult.Promise(content);
-    }
+        for (const tab of profile.tabs) {
+            tab.directory = resolveAbsolute(tab.directory ?? "./", path.dirname(profileFile));
 
-    const validationResult = validate(content.value, ProfileSchema);
-    if (validationResult[0]) return Result.Err(validationResult[0]);
-    const profile = validationResult[1];
-
-    for (const tab of profile.tabs) {
-        tab.directory = resolveAbsolute(tab.directory ?? "./", path.dirname(profileFile));
-
-        for (const pane of tab?.panes ?? []) {
-            pane.displayName ??= tab.displayName;
-            pane.directory ??= tab.directory;
-            pane.profile ??= tab.profile;
+            for (const pane of tab?.panes ?? []) {
+                pane.displayName ??= tab.displayName;
+                pane.directory ??= tab.directory;
+                pane.profile ??= tab.profile;
+            }
         }
-    }
 
-    return Result.Ok(profile);
+        return ok(profile);
+    });
 }
 
 export async function writeProfile(profileFile: string, content: Profile) {

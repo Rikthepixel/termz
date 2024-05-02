@@ -4,24 +4,28 @@ import { existsSync } from "fs";
 import os from "os";
 import path from "path";
 import { createConnection } from "net";
-import { readFile } from "fs/promises";
 import { Profile } from "src/models/profile";
 import which from "which";
+import { readFile } from "src/utils/file";
+import { err, ok } from "src/utils/result";
 
 const SOCKET_REGISTRY_FILE = path.join(os.tmpdir(), "termz-vscode-sockets");
 const KNOWN_CLIS = ["code", "code-insiders", "codium", "codium-insiders", "mrcode"] as const;
 
-async function readRegistry(): Promise<Record<string, string>> {
-    return await readFile(SOCKET_REGISTRY_FILE)
-        .then((content) => {
-            const jsonLines = content
-                .toString()
-                .split("\n")
-                .filter((line) => line !== "")
-                .join(",");
-            return `{${jsonLines}}`;
-        })
-        .then((content) => JSON.parse(content));
+function readRegistry() {
+    return readFile(SOCKET_REGISTRY_FILE).flatMap((content) => {
+        content = content
+            .toString()
+            .split("\n")
+            .filter((line) => line !== "")
+            .join(",");
+
+        try {
+            return ok(JSON.parse(`{${content}}`) as Record<string, string>);
+        } catch (e) {
+            return err(e as SyntaxError);
+        }
+    });
 }
 
 /**
@@ -94,8 +98,8 @@ export default {
         await Promise.all(clis.map((cli) => syncExtension(cli, extensionId)));
         await new Promise<void>((resolve) => setTimeout(resolve, 250)); // Wait for a bit so that the plugin has time to start up
 
-        const registry = await readRegistry();
-        const sendPromises = Object.values(registry).map((ipcPath) => sendProfileToPipe(profile, ipcPath));
-        await Promise.all(sendPromises);
+        await readRegistry()
+            .map((registry) => Object.values(registry).map((ipcPath) => sendProfileToPipe(profile, ipcPath)))
+            .map(Promise.all);
     },
 } satisfies Driver;
