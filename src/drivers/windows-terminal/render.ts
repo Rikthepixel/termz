@@ -107,7 +107,7 @@ export async function makeTab(tab: TerminalTab, settings: WtSettings) {
     }
 
     const profile = findProfile(settings.profiles.list, settings.defaultProfile, tab.profile);
-    if (!profile) {
+   if (!profile) {
         console.warn(chalk.yellowBright`Profile couldn't be found. Can't run specified script`);
     }
 
@@ -124,4 +124,8 @@ export async function makeTab(tab: TerminalTab, settings: WtSettings) {
     for (const pane of tab.panes ?? []) {
         await makePane(pane, settings);
     }
+}
+
+export async function focusPrevious() {
+    await $`wt -w 0 ft --previous`
 }
