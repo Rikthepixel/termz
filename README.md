@@ -2,20 +2,30 @@
 
 Setup terminals on your own terms.
 
+## Supported terminals/multiplexers
+
+- Windows Terminal
+- VSCode, VSCodium, MrCode (`v1.70` and above)
+
+## Roadmaps
+
 ### V1 Roadmap
-- Document `.trmz` file format
-- Support more terminals:
+- Document `.termz` file format
+- Support more terminals (drivers):
     - GNOME Terminal
     - Konsole
     - Kitty
     - iTerm
 
 ### V1.1 Roadmap
-- Support multiplexes:
+- Driver specific features
+    - VSCode:
+        - Open file-tabs
+- Support multiplexers (drivers):
     - tmux
+- VSCode plugin acks that it is done running
 
 ### V2 Roadmap
 
 - Rewrite in Rust.
-- Make `.trmz` files executable.
 - Publish on `winget`, `apt`, `apk`, etc.

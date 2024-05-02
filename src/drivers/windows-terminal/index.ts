@@ -3,7 +3,7 @@ import { EoentError } from "src/utils/file";
 import { logErrorBanner, logStructError } from "src/utils/logging";
 import { StructError } from "superstruct";
 import { NoWtSettingsError, readWtSettings } from "./settings";
-import { makeTab } from "./render";
+import { focusPrevious, makeTab } from "./render";
 
 export default {
     name: "Windows Terminal",
@@ -25,6 +25,10 @@ export default {
             async (settings) => {
                 for (const tab of tabs) {
                     await makeTab(tab, settings);
+                }
+
+                for (const _ of tabs) {
+                    await focusPrevious();
                 }
             },
             (error) => {

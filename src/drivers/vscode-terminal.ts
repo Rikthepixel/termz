@@ -1,4 +1,4 @@
-import { execa } from "execa";
+import { $ } from "execa";
 import { Driver, criteria } from "../models/driver";
 import { existsSync } from "fs";
 import os from "os";
@@ -6,8 +6,10 @@ import path from "path";
 import { createConnection } from "net";
 import { readFile } from "fs/promises";
 import { Profile } from "src/models/profile";
+import which from "which";
 
 const SOCKET_REGISTRY_FILE = path.join(os.tmpdir(), "termz-vscode-sockets");
+const KNOWN_CLIS = ["code", "code-insiders", "codium", "codium-insiders", "mrcode"] as const;
 
 async function readRegistry(): Promise<Record<string, string>> {
     return await readFile(SOCKET_REGISTRY_FILE)
@@ -22,46 +24,50 @@ async function readRegistry(): Promise<Record<string, string>> {
         .then((content) => JSON.parse(content));
 }
 
-async function hasExtension(): Promise<boolean> {
-    const { stdout } = await execa(`code --list-extensions`);
-    const foundExtension = stdout.split("\n").find((e) => e.endsWith(".termz"));
-    return Boolean(foundExtension);
+/**
+ * Checks which VSCode clis are available
+ */
+async function getInstalledClis(): Promise<string[]> {
+    const whichPromises = KNOWN_CLIS.map(async (cli) => {
+        const whichPath: string | null = await which(cli, { nothrow: true });
+        return whichPath ? cli : null;
+    });
+
+    return await Promise.all(whichPromises).then((clis) => clis.filter(Boolean) as string[]);
 }
 
-async function installExtension() {
-    let extPathOrId: null | string = null;
-
+async function getExtensionId(): Promise<string> {
     if (process.env.NODE_ENV === "production") {
-        extPathOrId = "rikthepixel.termz";
+        return "rikthepixel.termz";
     } else {
         const pluginVsix = path.resolve(__dirname, "../../", "./plugins/vscode/termz.vsix");
 
         if (existsSync(pluginVsix)) {
-            extPathOrId = pluginVsix;
+            return pluginVsix;
         } else {
-            await execa("npm run package -w plugins/vscode");
-            extPathOrId = pluginVsix;
+            await $`npm run package -w plugins/vscode"`;
+            return pluginVsix;
         }
     }
+}
 
-    await execa(`code --install-extension ${extPathOrId}`, { stdout: "inherit" });
-    return new Promise<void>((resolve) => setTimeout(resolve, 500)); // Wait for a second so that the plugin has time to start up
+async function syncExtension(cli: string, extensionId: string) {
+    const { stdout } = await $`${cli} --list-extensions`;
+    const foundExtension = stdout.split("\n").find((e) => e.endsWith(".termz"));
+    if (foundExtension) return;
+
+    await $({ stdout: "inherit" })`${cli} --install-extension ${extensionId}`;
 }
 
 async function sendProfileToPipe(profile: Profile, ipcPath: string) {
     return new Promise<void>((resolve) => {
         const json = JSON.stringify(profile);
-
-        try {
-            const connection = createConnection({ path: ipcPath })
-                .on("error", () => resolve())
-                .on("connect", () => {
-                    connection.write(json, () => connection.end(resolve));
-                });
-        } catch {
-            resolve();
-        }
-    });
+        const connection = createConnection({ path: ipcPath })
+            .on("error", () => resolve())
+            .on("connect", () => {
+                connection.write(json, () => connection.end(resolve));
+            });
+    }).catch(() => null);
 }
 
 export default {
@@ -83,14 +89,13 @@ export default {
         );
     },
     async open(profile) {
-        if (!(await hasExtension())) {
-            await installExtension();
-        }
+        const [clis, extensionId] = await Promise.all([getInstalledClis(), getExtensionId()]);
+
+        await Promise.all(clis.map((cli) => syncExtension(cli, extensionId)));
+        await new Promise<void>((resolve) => setTimeout(resolve, 250)); // Wait for a bit so that the plugin has time to start up
 
         const registry = await readRegistry();
-        const sendPromises = Object.values(registry).map((ipcPath) =>
-            sendProfileToPipe(profile, ipcPath).catch(() => null),
-        );
+        const sendPromises = Object.values(registry).map((ipcPath) => sendProfileToPipe(profile, ipcPath));
         await Promise.all(sendPromises);
     },
 } satisfies Driver;

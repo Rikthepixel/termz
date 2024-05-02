@@ -1,0 +1,123 @@
+name: "Publish VSCode extension"
+
+on:
+    push: 
+        branches:
+            - main
+
+jobs:
+    package-version:
+        runs-on: ubuntu-latest
+        outputs:
+            changed: ${{ steps.diff.outputs.changed }}
+            version: ${{ steps.current.outputs.version }}
+        steps:
+          - name: Checkout current commit
+            uses: actions/checkout@v4
+            with: 
+                fetch-depth: 2
+          - name: Get current package.json version
+            id: current
+            run: |
+                cat plugins/vscode/package.json | jq .version -r
+                echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
+
+          - name: Get previous commit ref
+            id: previous_commit
+            run: echo "hash=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
+          - name: Checkout previous commit
+            uses: actions/checkout@v4
+            with:
+                ref: ${{ steps.previous_commit.outputs.hash }}
+          - name: Get previous package.json version
+            id: previous
+            run: |
+                cat plugins/vscode/package.json | jq .version -r
+                echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
+
+          - name: Set output
+            id: diff
+            run: echo "changed=${{ steps.previous.outputs.version != steps.previous.outputs.version }}" >> $GITHUB_OUTPUT
+
+    build:
+        needs: [package-version]
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                    node-version: 20
+                    cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - name: Package VSIX
+              run: npm run package -w plugins/vscode
+            - uses: actions/upload-artifact@v4
+              with:
+                    name: vscode-extension
+                    path: plugins/vscode/termz.vsix
+
+    publish:
+        needs: [package-version, build]
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                marketplace:
+                  - name: Open VSX
+                    key: ovsx
+                  - name: VSCode marketplace
+                    key: vsce
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                    node-version: 20
+                    cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - uses: actions/download-artifact@v4
+              with:
+                    name: vscode-extension
+                    path: plugins/vscode
+            - name: Publishing to ${{ matrix.marketplace.name }}
+              run: npm run publish:${{ matrix.marketplace.key }} -w plugins/vscode
+              env:
+                    OVSX_PAT: ${{ secrets.OPENVSX_MARKETPLACE_ACCESS_TOKEN }}
+                    VSCE_PAT: ${{ secrets.VSCODE_MARKETPLACE_ACCESS_TOKEN }}
+
+    release:
+        needs: [package-version, build]
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
+        runs-on: ubuntu-latest
+        permissions:
+              contents: write
+              pull-requests: write
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/download-artifact@v4
+              with:
+                    name: vscode-extension
+            - name: Create tag
+              id: tag
+              uses: laputansoft/github-tag-action@v4.6
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  tag: vscode-v${{ needs.package-version.outputs.version }}
+            - name: Create Release
+              uses: ncipollo/release-action@v1.9.0
+              with:
+                  name: VSCode extension v${{ needs.package-version.outputs.version }}
+                  body: ${{ steps.tag.outputs.changelog }}
+                  tag: vscode-v${{ needs.package-version.outputs.version }}
+                  generateReleaseNotes: true
+                  artifacts: termz.vsix
+                  draft: true
+            
+
+
+            

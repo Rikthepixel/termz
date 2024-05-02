@@ -5,7 +5,7 @@
 Termz automatically sets up terminal sessions and executes commands. Note that this extensions does not do anything on its own. 
 You need to call `termz` in terminal to open sessions. 
 
-See ther [Termz Github](https://github.com/Rikthepixel/termz) for an indepth explanation on what Termz is.
+See the [Termz Github](https://github.com/Rikthepixel/termz) for an indepth explanation on what Termz is.
 
 ## Usage
 
@@ -27,7 +27,7 @@ Open the VSCode integrated terminal and type one of the following:
 ### Open a specific Termz file
 
 ```sh
-> termz backend.trmz
+> termz backend.termz
 ```
 
 ### Show Termz help screen
@@ -41,6 +41,15 @@ Open the VSCode integrated terminal and type one of the following:
 - Automatically opens, sets up, and splits terminals when `termz` is executed in the VSCode terminal
 
 ## Release Notes
+
+### [1.0.2...1.0.6] Automated deployment
+
+Simply test releases to check if automated deployment is working as expected.
+
+### [1.0.1] Increase compatibility
+
+- Increased compatibility to VSCode 1.70 and above instead of 1.88 and above.
+  - Allows for the usage or MrCode and older VSCode versions
 
 ### [1.0.0] Intial release
 
