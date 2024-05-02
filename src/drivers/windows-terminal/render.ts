@@ -57,7 +57,7 @@ export async function makePane(pane: TerminalPane, settings: WtSettings) {
     const args: string[] = [];
 
     if (pane.displayName) {
-        args.push("--title", pane.displayName);
+        args.push("--title", pane.displayName, "--suppressApplicationTitle");
     }
     if (pane.directory) {
         args.push("--startingDirectory", pane.directory);
@@ -100,14 +100,14 @@ export async function makeTab(tab: TerminalTab, settings: WtSettings) {
     const args: string[] = [];
 
     if (tab.displayName) {
-        args.push("--title", tab.displayName);
+        args.push("--title", tab.displayName, "--suppressApplicationTitle");
     }
     if (tab.directory) {
         args.push("--startingDirectory", tab.directory);
     }
 
     const profile = findProfile(settings.profiles.list, settings.defaultProfile, tab.profile);
-   if (!profile) {
+    if (!profile) {
         console.warn(chalk.yellowBright`Profile couldn't be found. Can't run specified script`);
     }
 
@@ -127,5 +127,5 @@ export async function makeTab(tab: TerminalTab, settings: WtSettings) {
 }
 
 export async function focusPrevious() {
-    await $`wt -w 0 ft --previous`
+    await $`wt -w 0 ft --previous`;
 }
