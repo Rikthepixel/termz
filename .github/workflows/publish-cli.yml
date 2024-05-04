@@ -1,0 +1,109 @@
+name: "Publish VSCode extension"
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    package-version:
+        runs-on: ubuntu-latest
+        outputs:
+            changed: ${{ steps.diff.outputs.changed }}
+            version: ${{ steps.current.outputs.version }}
+        steps:
+            - name: Checkout current commit
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2
+            - name: Get current package.json version
+              id: current
+              run: |
+                  cat package.json | jq .version -r
+                  echo "version=$(cat package.json | jq .version -r)" >> $GITHUB_OUTPUT
+
+            - name: Get previous commit ref
+              id: previous_commit
+              run: echo "hash=$(git rev-parse HEAD^1)" >> $GITHUB_OUTPUT
+            - name: Checkout previous commit
+              uses: actions/checkout@v4
+              with:
+                  ref: ${{ steps.previous_commit.outputs.hash }}
+            - name: Get previous package.json version
+              id: previous
+              run: |
+                  cat package.json | jq .version -r
+                  echo "version=$(cat package.json | jq .version -r)" >> $GITHUB_OUTPUT
+
+            - name: Set output
+              id: diff
+              run: echo "changed=${{ steps.previous.outputs.version != steps.current.outputs.version }}" >> $GITHUB_OUTPUT
+
+    build:
+        needs: [package-version]
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - name: Build Termz
+              run: npm run build
+
+    publish:
+        needs: [package-version, build]
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - uses: actions/download-artifact@v4
+              with:
+                  name: cli-binaries
+                  path: bin/
+            - name: Publishing to npm
+              run: npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
+
+    release:
+        needs: [package-version, build]
+        if: ${{ needs.package-version.outputs.changed == 'true' }}
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/download-artifact@v4
+              with:
+                  name: cli-binaries
+                  path: bin/
+            - name: Create tag
+              id: tag
+              uses: laputansoft/github-tag-action@v4.6
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  tag: cli-v${{ needs.package-version.outputs.version }}
+            - name: Create Release
+              uses: ncipollo/release-action@v1.9.0
+              with:
+                  name: Termz CLI v${{ needs.package-version.outputs.version }}
+                  body: ${{ steps.tag.outputs.changelog }}
+                  tag: cli-v${{ needs.package-version.outputs.version }}
+                  generateReleaseNotes: true
+                  draft: true
+                  makeLatest: true
+                  artifacts: bin/*
