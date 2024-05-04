@@ -36,7 +36,10 @@ export function makePane(pane: TerminalPane, parent: Terminal) {
     });
 
     if (pane.script) {
-        paneTerminal.sendText(pane.script, true);
+        const scripts = Array.isArray(pane.script) ? pane.script : [pane.script];
+        for (const script of scripts) {
+            paneTerminal.sendText(script, true);
+        }
     }
 }
 
@@ -51,7 +54,10 @@ export function makeTab(tab: TerminalTab) {
     });
 
     if (tab.script) {
-        tabTerminal.sendText(tab.script, true);
+        const scripts = Array.isArray(tab.script) ? tab.script : [tab.script];
+        for (const script of scripts) {
+            tabTerminal.sendText(script, true);
+        }
     }
 
     if (tab.panes) {

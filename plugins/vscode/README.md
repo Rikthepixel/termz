@@ -42,6 +42,9 @@ Open the VSCode integrated terminal and type one of the following:
 
 ## Release Notes
 
+### [1.1.0] Multiple scripts
+Termz `0.3.0` added support for executing multiple scripts. Now the VSCode plugin supports it too.
+
 ### [1.0.2...1.0.6] Automated deployment
 
 Simply test releases to check if automated deployment is working as expected.

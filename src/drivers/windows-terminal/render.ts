@@ -10,16 +10,18 @@ const supportedCommandLines = [
         detect(cmd: string) {
             return cmd.endsWith("powershell.exe") && cmd.includes("WindowsPowerShell");
         },
-        makeArgs(profile: WtProfile, script: string) {
-            return [profile.commandline!, "-NoExit", script];
+        makeArgs(profile: WtProfile, script: string | string[]) {
+            const scripts = Array.isArray(script) ? script : [script];
+            return [profile.commandline!, "-NoExit", scripts.join(" ; ")];
         },
     },
     {
         detect(cmd: string) {
             return cmd.endsWith("cmd.exe");
         },
-        makeArgs(profile: WtProfile, script: string) {
-            return [profile.commandline!, "/K", script];
+        makeArgs(profile: WtProfile, script: string | string[]) {
+            const scripts = Array.isArray(script) ? script : [script];
+            return [profile.commandline!, "/K", scripts.join(" && ")];
         },
     },
 ];
@@ -33,7 +35,7 @@ function findProfile(profiles: WtProfile[], defaultIdentifier: string, identifie
     );
 }
 
-function makeScriptArgs(script: string, profile: WtProfile): string[] {
+function makeScriptArgs(script: string | string[], profile: WtProfile): string[] {
     profile.commandline = profile.commandline?.replace("%SystemRoot%", process.env.SystemRoot ?? "%SystemRoot%");
     const profileCmd = profile.commandline ?? profile.source;
     if (!profileCmd) {
