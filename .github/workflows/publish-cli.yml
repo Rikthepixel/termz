@@ -1,11 +1,9 @@
-name: "Publish VSCode extension"
+name: "Publish CLI"
 
 on:
     push:
         branches:
             - main
-        paths:
-            - "plugins/vscode/**"
     workflow_dispatch:
 
 jobs:
@@ -22,8 +20,8 @@ jobs:
             - name: Get current package.json version
               id: current
               run: |
-                  cat plugins/vscode/package.json | jq .version -r
-                  echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
+                  cat package.json | jq .version -r
+                  echo "version=$(cat package.json | jq .version -r)" >> $GITHUB_OUTPUT
 
             - name: Get previous commit ref
               id: previous_commit
@@ -35,8 +33,8 @@ jobs:
             - name: Get previous package.json version
               id: previous
               run: |
-                  cat plugins/vscode/package.json | jq .version -r
-                  echo "version=$(cat plugins/vscode/package.json | jq .version -r)" >> $GITHUB_OUTPUT
+                  cat package.json | jq .version -r
+                  echo "version=$(cat package.json | jq .version -r)" >> $GITHUB_OUTPUT
 
             - name: Set output
               id: diff
@@ -55,25 +53,17 @@ jobs:
                   cache: npm
             - name: Install dependencies
               run: npm i -ws --include-workspace-root
-            - name: Package VSIX
-              run: npm run package -w plugins/vscode
+            - name: Build Termz
+              run: npm run build
             - uses: actions/upload-artifact@v4
               with:
-                  name: vscode-extension
-                  path: plugins/vscode/termz.vsix
+                  name: cli-binaries
+                  path: bin/
 
     publish:
         needs: [package-version, build]
         if: ${{ needs.package-version.outputs.changed == 'true' }}
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                marketplace:
-                    - name: Open VSX
-                      key: ovsx
-                    - name: VSCode marketplace
-                      key: vsce
         steps:
             - uses: actions/checkout@v4
             - name: Setup node
@@ -81,17 +71,17 @@ jobs:
               with:
                   node-version: 20
                   cache: npm
+                  registry-url: "https://registry.npmjs.org"
             - name: Install dependencies
               run: npm i -ws --include-workspace-root
             - uses: actions/download-artifact@v4
               with:
-                  name: vscode-extension
-                  path: plugins/vscode
-            - name: Publishing to ${{ matrix.marketplace.name }}
-              run: npm run publish:${{ matrix.marketplace.key }} -w plugins/vscode
+                  name: cli-binaries
+                  path: bin/
+            - name: Publishing to npm
+              run: npm publish
               env:
-                  OVSX_PAT: ${{ secrets.OPENVSX_MARKETPLACE_ACCESS_TOKEN }}
-                  VSCE_PAT: ${{ secrets.VSCODE_MARKETPLACE_ACCESS_TOKEN }}
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_ACCESS_TOKEN }}
 
     release:
         needs: [package-version, build]
@@ -104,19 +94,21 @@ jobs:
             - uses: actions/checkout@v4
             - uses: actions/download-artifact@v4
               with:
-                  name: vscode-extension
+                  name: cli-binaries
+                  path: bin/
             - name: Create tag
               id: tag
               uses: laputansoft/github-tag-action@v4.6
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  tag: vscode-v${{ needs.package-version.outputs.version }}
+                  tag: cli-v${{ needs.package-version.outputs.version }}
             - name: Create Release
               uses: ncipollo/release-action@v1.9.0
               with:
-                  name: VSCode extension v${{ needs.package-version.outputs.version }}
+                  name: Termz CLI v${{ needs.package-version.outputs.version }}
                   body: ${{ steps.tag.outputs.changelog }}
-                  tag: vscode-v${{ needs.package-version.outputs.version }}
+                  tag: cli-v${{ needs.package-version.outputs.version }}
                   generateReleaseNotes: true
-                  artifacts: termz.vsix
                   draft: true
+                  makeLatest: true
+                  artifacts: bin/*

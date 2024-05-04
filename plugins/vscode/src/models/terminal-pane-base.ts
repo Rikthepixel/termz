@@ -4,5 +4,5 @@ export type TerminalPaneBase = {
     displayName?: string;
     profile?: string;
     directory: string;
-    script?: string;
+    script?: string | string[];
 };

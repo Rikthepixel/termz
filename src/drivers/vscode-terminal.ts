@@ -8,9 +8,13 @@ import { Profile } from "src/models/profile";
 import which from "which";
 import { readFile } from "src/utils/file";
 import { err, ok } from "src/utils/result";
+import { satisfies as satisfiesVersion } from "semver";
 
 const SOCKET_REGISTRY_FILE = path.join(os.tmpdir(), "termz-vscode-sockets");
 const KNOWN_CLIS = ["code", "code-insiders", "codium", "codium-insiders", "mrcode"] as const;
+const EXTENSION_ID = "rikthepixel.termz";
+const EXTENSION_MIN_INSTALL_VERSION = "1.1.0";
+const SUPPORTED_EXTENSION_VERSION = ">=1.1.0";
 
 function readRegistry() {
     return readFile(SOCKET_REGISTRY_FILE).flatMap((content) => {
@@ -42,7 +46,7 @@ async function getInstalledClis(): Promise<string[]> {
 
 async function getExtensionId(): Promise<string> {
     if (process.env.NODE_ENV === "production") {
-        return "rikthepixel.termz";
+        return EXTENSION_ID;
     } else {
         const pluginVsix = path.resolve(__dirname, "../../", "./plugins/vscode/termz.vsix");
 
@@ -56,11 +60,22 @@ async function getExtensionId(): Promise<string> {
 }
 
 async function syncExtension(cli: string, extensionId: string) {
-    const { stdout } = await $`${cli} --list-extensions`;
-    const foundExtension = stdout.split("\n").find((e) => e.endsWith(".termz"));
-    if (foundExtension) return;
+    const { stdout } = await $`${cli} --list-extensions --show-versions`;
+    const foundExtension = stdout
+        .split("\n")
+        .map((line) => line.split("@"))
+        .find((line) => line[1]!.endsWith(".termz"));
 
-    await $({ stdout: "inherit" })`${cli} --install-extension ${extensionId}`;
+    if (!foundExtension) {
+        await $({ stdout: "inherit" })`${cli} --install-extension ${extensionId}`;
+        return;
+    }
+
+    if (satisfiesVersion(foundExtension[1]!, SUPPORTED_EXTENSION_VERSION)) {
+        return;
+    }
+
+    await $({ stdout: "inherit" })`${cli} --install-extension ${extensionId}@${EXTENSION_MIN_INSTALL_VERSION}`;
 }
 
 async function sendProfileToPipe(profile: Profile, ipcPath: string) {
