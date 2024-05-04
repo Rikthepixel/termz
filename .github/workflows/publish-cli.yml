@@ -71,6 +71,7 @@ jobs:
               with:
                   node-version: 20
                   cache: npm
+                  registry-url: "https://registry.npmjs.org"
             - name: Install dependencies
               run: npm i -ws --include-workspace-root
             - uses: actions/download-artifact@v4
