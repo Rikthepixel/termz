@@ -1,7 +1,6 @@
 export type Ok<T> = { type: "ok"; value: T } & typeof Result;
 export type Err<T> = { type: "err"; error: T } & typeof Result;
 export type Result<T, E> = Ok<T> | Err<E>;
-export type PromiseResult<T, E> = Promise<Result<T, E>> & typeof PromiseResult;
 export type MaybePromise<T> = T | Promise<T>;
 
 export module Result {
@@ -33,6 +32,14 @@ export module Result {
         return this as any;
     }
 
+    export function flatMap<M extends Result<unknown, unknown>, T, E>(
+        this: Result<T, E>,
+        mapper: (value: T) => M,
+    ): Result<Exclude<T, Result<GetOk<T>, GetErr<T>>> | GetOk<T>, E | GetErr<T>> {
+        if (this.type !== "ok") return this;
+        return mapper(this.value);
+    }
+
     export function match<MT, ME, T, E>(
         this: Result<T, E>,
         okMapper: (value: T) => MT,
@@ -48,15 +55,8 @@ export module Result {
         }
     }
 
-    export function await<T, E>(this: Result<T, E>): PromiseResult<Awaited<T>, Awaited<E>> {
-        const promise = new Promise<Result<Awaited<T>, Awaited<E>>>(async (resolve) => {
-            await this.match(
-                async (value) => resolve(Ok(await value)),
-                async (error) => resolve(Err(await error)),
-            );
-        });
-
-        return PromiseResult.Promise(promise);
+    export function promise<T, E>(this: Result<T, E>): Promise<Result<Awaited<T>, Awaited<E>>> {
+        return new Promise((resolve) => {});
     }
 
     export function is(value: unknown): value is Result<unknown, unknown> {
@@ -74,67 +74,3 @@ export module Result {
 
 export const ok = Result.Ok;
 export const err = Result.Err;
-
-const intoPromise = Promise.resolve;
-
-export module PromiseResult {
-    export function Ok<T>(value: MaybePromise<T>): PromiseResult<T, unknown> {
-        const promise = intoPromise(value).then((v) => ok(v));
-        return Promise(promise);
-    }
-    export function Err<E>(error: Promise<E>): PromiseResult<unknown, E> {
-        const promise = intoPromise(error).then((v) => err(v));
-        return Promise(promise);
-    }
-
-    export function Result<T, E>(result: Result<T, E>): PromiseResult<T, E> {
-        return Promise(intoPromise(result));
-    }
-
-    export function Promise<T, E>(promise: Promise<Result<T, E>>): PromiseResult<T, E> {
-        return Object.setPrototypeOf(intoPromise(promise), PromiseResult);
-    }
-
-    export function map<M, T, E>(
-        this: PromiseResult<T, E>,
-        mapper: (value: T) => M,
-    ): PromiseResult<Awaited<M>, Awaited<E>> {
-        const result = this.then((result) => result.map(mapper).await());
-        return PromiseResult.Promise(result);
-    }
-
-    export function flat<T, E>(
-        this: PromiseResult<T, E>,
-    ): PromiseResult<
-        | Exclude<T, Promise<Result<Result.GetOk<T>, Result.GetErr<T>>> | Result<Result.GetOk<T>, Result.GetErr<T>>>
-        | Result.GetOk<T>,
-        E | Result.GetErr<T>
-    > {
-        const result = this.then((result) => {
-            if (result.type === "ok" && PromiseResult.is(result.value)) {
-                return result.value;
-            }
-            return result;
-        }).then((result) => result.flat());
-
-        return PromiseResult.Promise(result) as any;
-    }
-
-    export function flatMap<M, T, E>(this: PromiseResult<T, E>, mapper: (value: T) => MaybePromise<M>) {
-        const result = this.then((result) => result.map(mapper));
-        return PromiseResult.Promise(result).flat();
-    }
-
-    export async function match<MT, ME, T, E>(
-        this: PromiseResult<T, E>,
-        okMapper: (value: T) => MT,
-        errMapper: (error: E) => ME,
-    ): Promise<Awaited<MT | ME>> {
-        return await this.then((result) => result.match(okMapper, errMapper));
-    }
-
-    export function is(value: unknown): value is PromiseResult<unknown, unknown> {
-        return Object.getPrototypeOf(value) === PromiseResult;
-    }
-}
-Object.setPrototypeOf(PromiseResult, Promise);

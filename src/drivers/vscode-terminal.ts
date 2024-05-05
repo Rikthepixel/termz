@@ -17,19 +17,21 @@ const EXTENSION_MIN_INSTALL_VERSION = "1.1.0";
 const SUPPORTED_EXTENSION_VERSION = ">=1.1.0";
 
 function readRegistry() {
-    return readFile(SOCKET_REGISTRY_FILE).flatMap((content) => {
-        content = content
-            .toString()
-            .split("\n")
-            .filter((line) => line !== "")
-            .join(",");
+    return readFile(SOCKET_REGISTRY_FILE).then((result) =>
+        result.flatMap((content) => {
+            content = content
+                .toString()
+                .split("\n")
+                .filter((line) => line !== "")
+                .join(",");
 
-        try {
-            return ok(JSON.parse(`{${content}}`) as Record<string, string>);
-        } catch (e) {
-            return err(e as SyntaxError);
-        }
-    });
+            try {
+                return ok(JSON.parse(`{${content}}`) as Record<string, string>);
+            } catch (e) {
+                return err(e as SyntaxError);
+            }
+        }),
+    );
 }
 
 /**
@@ -113,7 +115,8 @@ export default {
         await Promise.all(clis.map((cli) => syncExtension(cli, extensionId)));
         await new Promise<void>((resolve) => setTimeout(resolve, 250)); // Wait for a bit so that the plugin has time to start up
 
-        await readRegistry()
+        const registryResult = await readRegistry();
+        registryResult
             .map((registry) => Object.values(registry).map((ipcPath) => sendProfileToPipe(profile, ipcPath)))
             .map(Promise.all);
     },
