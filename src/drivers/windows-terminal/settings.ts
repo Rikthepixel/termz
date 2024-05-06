@@ -60,7 +60,7 @@ async function getWtSettingsPath() {
 export async function readWtSettings() {
     return asyncPipe(
         getWtSettingsPath(),
-        (r) => r.flatMapPromise(readJsonFile),
-        (r) => r.flatMap((content) => validate(content, WtSettingsSchema, true)),
+        (r) => r.mapPromise(readJsonFile),
+        (r) => r.map((content) => validate(content, WtSettingsSchema, true)),
     );
 }

@@ -6,46 +6,36 @@ export type MaybePromise<T> = T | Promise<T>;
 export module Result {
     export type GetOk<TPossible> = TPossible extends Ok<infer T> ? T : never;
     export type GetErr<TPossible> = TPossible extends Err<infer T> ? T : never;
+    type IsNever<T> = (T extends never ? true : false) extends true ? true : false;
 
-    export function Ok<T>(data: T): Ok<T> {
+    export function ok<T>(data: T): Ok<T> {
         return Object.setPrototypeOf({ type: "ok", value: data }, Result);
     }
 
-    export function Err<T>(error: T): Err<T> {
+    export function err<T>(error: T): Err<T> {
         return Object.setPrototypeOf({ type: "err", error: error }, Result);
     }
 
-    export function map<M, T, E>(this: Result<T, E>, mapper: (value: T) => M): Result<M, E> {
-        if (this.type !== "ok") return this;
-        return Ok(mapper(this.value));
+    export function map<M, MT = never, ME = never, T = unknown, E = unknown>(
+        this: Result<T, E>,
+        mapper: (value: T) => M | Result<MT, ME>,
+    ): IsNever<MT> extends true ? (IsNever<ME> extends true ? Result<M, E> : Result<MT, ME | E>) : Result<MT, ME | E> {
+        if (this.type !== "ok") return this as any;
+        const mapped = mapper(this.value);
+        if (is(mapped)) return mapped as any;
+        return ok(mapped) as any;
     }
 
-    export function flat<T, E>(
+    export async function mapPromise<M, MT = never, ME = never, T = unknown, E = unknown>(
         this: Result<T, E>,
-    ): Result<Exclude<T, Result<GetOk<T>, GetErr<T>>> | GetOk<T>, E | GetErr<T>> {
-        if (this.type !== "ok") return this;
-
-        if (is(this.value)) {
-            return this.value as any;
-        }
-
-        return this as any;
-    }
-
-    export function flatMap<M extends Result<unknown, unknown>, T, E>(
-        this: Result<T, E>,
-        mapper: (value: T) => M,
-    ): Result<GetOk<M>, E | GetErr<M>> {
-        if (this.type !== "ok") return this;
-        return mapper(this.value) as any;
-    }
-
-    export async function flatMapPromise<M extends Result<unknown, unknown>, T, E>(
-        this: Result<T, E>,
-        mapper: (value: T) => M | Promise<M>,
-    ): Promise<Result<GetOk<M>, E | GetErr<M>>> {
-        if (this.type !== "ok") return this;
-        return Promise.resolve(mapper(this.value)) as any;
+        mapper: (value: T) => M | Result<MT, ME> | Promise<M | Result<MT, ME>>,
+    ): Promise<
+        IsNever<MT> extends true ? (IsNever<ME> extends true ? Result<M, E> : Result<MT, ME | E>) : Result<MT, ME | E>
+    > {
+        if (isErr(this)) return Promise.resolve(this);
+        const mapped = await mapper(this.value);
+        if (is(mapped)) return mapped as any;
+        return ok(mapped) as any;
     }
 
     export function match<MT, ME, T, E>(
@@ -64,7 +54,12 @@ export module Result {
     }
 
     export function promise<T, E>(this: Result<T, E>): Promise<Result<Awaited<T>, Awaited<E>>> {
-        return new Promise((resolve) => {});
+        return new Promise((resolve) =>
+            this.match(
+                async (value) => resolve(ok(await value)),
+                async (error) => resolve(err(await error)),
+            ),
+        );
     }
 
     export function is(value: unknown): value is Result<unknown, unknown> {
@@ -80,5 +75,5 @@ export module Result {
     }
 }
 
-export const ok = Result.Ok;
-export const err = Result.Err;
+export const ok = Result.ok;
+export const err = Result.err;

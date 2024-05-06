@@ -17,8 +17,7 @@ const EXTENSION_MIN_INSTALL_VERSION = "1.1.0";
 const SUPPORTED_EXTENSION_VERSION = ">=1.1.0";
 
 async function readRegistry() {
-    const result = await readFile(SOCKET_REGISTRY_FILE);
-    return result.flatMap((content) => {
+    return (await readFile(SOCKET_REGISTRY_FILE)).map((content) => {
         content = content
             .toString()
             .split("\n")
@@ -122,9 +121,9 @@ export default {
         await Promise.all(clis.map((cli) => syncExtension(cli, extensionId)));
         await new Promise<void>((resolve) => setTimeout(resolve, 250)); // Wait for a bit so that the plugin has time to start up
 
-        const registryResult = await readRegistry();
-        registryResult
+        return (await readRegistry())
             .map((registry) => Object.values(registry).map((ipcPath) => sendProfileToPipe(profile, ipcPath)))
-            .map(Promise.all);
+            .map(Promise.all.bind(Promise))
+            .promise();
     },
 } satisfies Driver;

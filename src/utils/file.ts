@@ -40,13 +40,11 @@ export async function readFile(file: string): Promise<Result<string, EoentError>
 }
 
 export async function readJsonFile(file: string): Promise<Result<unknown, EoentError | SyntaxError>> {
-    return await readFile(file).then((r) => {
-        return r.flatMap((content) => {
-            try {
-                return ok(JSON.parse(content) as unknown);
-            } catch (e) {
-                return err(e as SyntaxError);
-            }
-        });
+    return (await readFile(file)).map((content) => {
+        try {
+            return ok(JSON.parse(content) as unknown);
+        } catch (e) {
+            return err(e as SyntaxError);
+        }
     });
 }
