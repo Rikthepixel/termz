@@ -4,7 +4,7 @@ export type Result<T, E> = Ok<T> | Err<E>;
 
 type PromiseValue<T> = T extends Promise<infer TP> ? TP : T;
 
-export module Result {
+export namespace Result {
     export function Ok<T>(data: T): Ok<T> {
         return Object.setPrototypeOf(
             {

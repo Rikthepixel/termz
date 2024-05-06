@@ -10,7 +10,7 @@ export default {
         paneScript: false,
     },
     detect() {
-        return false;
+        return 0;
     },
-    open(tabs) {},
+    async open() {},
 } satisfies Driver;

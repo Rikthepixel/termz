@@ -42,7 +42,6 @@
         "@types/which": "^3.0.3",
         "@types/window-size": "^1.1.4",
         "eslint": "^8.57.0",
-        "eslint-plugin-react": "^7.34.1",
         "globals": "^15.1.0",
         "prettier": "^3.2.5",
         "tsup": "^8.0.2",
