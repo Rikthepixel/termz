@@ -1,9 +1,10 @@
-import { Driver, criteria } from "src/models/driver";
+import { Driver } from "src/models/driver";
 import { EoentError } from "src/utils/file";
 import { logErrorBanner, logStructError } from "src/utils/logging";
 import { StructError } from "superstruct";
 import { NoWtSettingsError, readWtSettings } from "./settings";
 import { focusPrevious, makeTab } from "./render";
+import { criteria } from "src/utils/driver";
 
 export default {
     name: "Windows Terminal",
@@ -11,8 +12,7 @@ export default {
         tabs: true,
         verticalPanes: true,
         horizontalPanes: true,
-        paneScript: false,
-        tabScript: false,
+        script: "Windows Terminal has limited support (powershell & cmd) for executing startup scripts",
     },
     detect() {
         return criteria(Boolean(process.env.WT_SESSION), Boolean(process.env.WT_PROFILE_ID));

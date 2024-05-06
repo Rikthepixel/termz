@@ -6,6 +6,7 @@ import { StructError } from "superstruct";
 import { logErrorBanner, logStructError } from "src/utils/logging";
 import { EoentError } from "src/utils/file";
 import { Driver } from "src/models/driver";
+import { logIncompatibleFeatures } from "src/utils/driver";
 
 async function runAction(profileFile: string) {
     console.log();
@@ -33,7 +34,8 @@ async function runAction(profileFile: string) {
     profileResult.match(
         async (profile) => {
             console.log(chalk.gray(`Setting up:`), profileFile);
-
+            
+            logIncompatibleFeatures(profile, driver.features);
             await driver.open(profile);
 
             console.log(chalk.greenBright("Successfully set-up terminal session 🎉\n"));

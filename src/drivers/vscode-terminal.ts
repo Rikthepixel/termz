@@ -1,5 +1,5 @@
 import { $ } from "execa";
-import { Driver, criteria } from "../models/driver";
+import { Driver } from "../models/driver";
 import { existsSync } from "fs";
 import os from "os";
 import path from "path";
@@ -9,6 +9,7 @@ import which from "which";
 import { readFile } from "src/utils/file";
 import { err, ok } from "src/utils/result";
 import { satisfies as satisfiesVersion } from "semver";
+import { criteria } from "src/utils/driver";
 
 const SOCKET_REGISTRY_FILE = path.join(os.tmpdir(), "termz-vscode-sockets");
 const KNOWN_CLIS = ["code", "code-insiders", "codium", "codium-insiders"] as const;
@@ -102,9 +103,8 @@ export default {
     features: {
         tabs: true,
         verticalPanes: true,
-        horizontalPanes: false,
-        tabScript: true,
-        paneScript: true,
+        horizontalPanes: "VSCode terminal doesn't support horizontal panes. Will create vertical panes as a fallback",
+        script: true,
     },
     detect() {
         return criteria(

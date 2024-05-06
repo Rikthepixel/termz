@@ -7,7 +7,4 @@ const program = new Command("termz").description("Setup terminal sessions with e
 program.addCommand(runCommand, { isDefault: true });
 //.addCommand(createCommand);
 
-// termz open
-// termz
-
 program.parse();
