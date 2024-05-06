@@ -10,7 +10,7 @@ export type Driver = {
         paneScript: boolean;
     };
     detect(): number;
-    open(profile: Profile): Promise<void>;
+    open(profile: Profile): Promise<any>;
 };
 
 export function criteria(...clauses: boolean[]) {

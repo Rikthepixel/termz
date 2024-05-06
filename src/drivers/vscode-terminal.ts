@@ -4,9 +4,10 @@ import { existsSync } from "fs";
 import os from "os";
 import path from "path";
 import { createConnection } from "net";
-import { readFile } from "fs/promises";
 import { Profile } from "src/models/profile";
 import which from "which";
+import { readFile } from "src/utils/file";
+import { err, ok } from "src/utils/result";
 import { satisfies as satisfiesVersion } from "semver";
 
 const SOCKET_REGISTRY_FILE = path.join(os.tmpdir(), "termz-vscode-sockets");
@@ -15,17 +16,20 @@ const EXTENSION_ID = "rikthepixel.termz";
 const EXTENSION_MIN_INSTALL_VERSION = "1.1.0";
 const SUPPORTED_EXTENSION_VERSION = ">=1.1.0";
 
-async function readRegistry(): Promise<Record<string, string>> {
-    return await readFile(SOCKET_REGISTRY_FILE)
-        .then((content) => {
-            const jsonLines = content
-                .toString()
-                .split("\n")
-                .filter((line) => line !== "")
-                .join(",");
-            return `{${jsonLines}}`;
-        })
-        .then((content) => JSON.parse(content));
+async function readRegistry() {
+    return (await readFile(SOCKET_REGISTRY_FILE)).map((content) => {
+        content = content
+            .toString()
+            .split("\n")
+            .filter((line) => line !== "")
+            .join(",");
+
+        try {
+            return ok(JSON.parse(`{${content}}`) as Record<string, string>);
+        } catch (e) {
+            return err(e as SyntaxError);
+        }
+    });
 }
 
 /**
@@ -70,8 +74,6 @@ async function syncExtension(cli: string, extensionId: string) {
         .split("\n")
         .map((line) => line.split("@"))
         .find((line) => line[0]!.endsWith(".termz"));
-
-    console.log(cli, foundExtension);
 
     if (!foundExtension) {
         return await installExtension(cli, extensionId);
@@ -119,8 +121,9 @@ export default {
         await Promise.all(clis.map((cli) => syncExtension(cli, extensionId)));
         await new Promise<void>((resolve) => setTimeout(resolve, 250)); // Wait for a bit so that the plugin has time to start up
 
-        const registry = await readRegistry();
-        const sendPromises = Object.values(registry).map((ipcPath) => sendProfileToPipe(profile, ipcPath));
-        await Promise.all(sendPromises);
+        return (await readRegistry())
+            .map((registry) => Object.values(registry).map((ipcPath) => sendProfileToPipe(profile, ipcPath)))
+            .map(Promise.all.bind(Promise))
+            .promise();
     },
 } satisfies Driver;
