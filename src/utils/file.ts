@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import { err, ok } from "./result";
+import { Result, err, ok } from "./result";
 
 export class EoentError extends Error {
     constructor(
@@ -32,21 +32,21 @@ export class EoentError extends Error {
     }
 }
 
-export async function readFile(file: string) {
+export async function readFile(file: string): Promise<Result<string, EoentError>> {
     return await fs
         .readFile(file)
         .then((c) => ok(c.toString()))
         .catch((e) => err(EoentError.fromError(e)));
 }
 
-export async function readJsonFile(file: string) {
-    return readFile(file).then((result) =>
-        result.flatMap((c) => {
+export async function readJsonFile(file: string): Promise<Result<unknown, EoentError | SyntaxError>> {
+    return await readFile(file).then((r) => {
+        return r.flatMap((content) => {
             try {
-                return ok(JSON.parse(c) as unknown);
+                return ok(JSON.parse(content) as unknown);
             } catch (e) {
                 return err(e as SyntaxError);
             }
-        }),
-    );
+        });
+    });
 }

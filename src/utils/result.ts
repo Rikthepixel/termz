@@ -35,7 +35,7 @@ export module Result {
     export function flatMap<M extends Result<unknown, unknown>, T, E>(
         this: Result<T, E>,
         mapper: (value: T) => M,
-    ): Result<Exclude<T, Result<GetOk<T>, GetErr<T>>> | GetOk<T>, E | GetErr<T>> {
+    ): Result<GetOk<M>, E | GetErr<M>> {
         if (this.type !== "ok") return this;
         return mapper(this.value);
     }
@@ -55,7 +55,7 @@ export module Result {
         }
     }
 
-    export function promise<T, E>(this: Result<T, E>): Promise<Result<Awaited<T>, Awaited<E>>> {
+    export function resolve<T, E>(this: Result<T, E>): Promise<Result<Awaited<T>, Awaited<E>>> {
         return new Promise((resolve) => {});
     }
 
