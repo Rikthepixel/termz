@@ -55,23 +55,33 @@ async function getExtensionId(): Promise<string> {
     }
 }
 
+async function installExtension(cli: string, extension: string, version?: string) {
+    await $({ stdout: "inherit" })`${cli} --install-extension ${extension}${version ? "@" + version : ""}`;
+}
+
 async function syncExtension(cli: string, extensionId: string) {
     const { stdout } = await $`${cli} --list-extensions --show-versions`;
+
+    if (stdout === "") {
+        return await installExtension(cli, extensionId);
+    }
+
     const foundExtension = stdout
         .split("\n")
         .map((line) => line.split("@"))
-        .find((line) => line[1]!.endsWith(".termz"));
+        .find((line) => line[0]!.endsWith(".termz"));
+
+    console.log(cli, foundExtension);
 
     if (!foundExtension) {
-        await $({ stdout: "inherit" })`${cli} --install-extension ${extensionId}`;
-        return;
+        return await installExtension(cli, extensionId);
     }
 
     if (satisfiesVersion(foundExtension[1]!, SUPPORTED_EXTENSION_VERSION)) {
         return;
     }
 
-    await $({ stdout: "inherit" })`${cli} --install-extension ${extensionId}@${EXTENSION_MIN_INSTALL_VERSION}`;
+    return await installExtension(cli, extensionId, EXTENSION_MIN_INSTALL_VERSION);
 }
 
 async function sendProfileToPipe(profile: Profile, ipcPath: string) {
