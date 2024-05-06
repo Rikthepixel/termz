@@ -1,7 +1,7 @@
 {
   "tabs": [
     { "displayName": "nvim", "script": "nvim .", "exclude": ["vscode"] },
-    { "displayName": "commands", "profile": "Command Prompt", "script": ["echo 'hi'", "echo 'world'"] }
+    { "displayName": "commands", "script": "git status" }
   ]
 }
  
