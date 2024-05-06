@@ -9,7 +9,7 @@
         "watch": "tsup --watch",
         "dev": "tsx ./src/index.ts",
         "preview": "node ./bin/index.js",
-        "lint": "eslint",
+        "lint": "eslint src",
         "format": "prettier -w ."
     },
     "bin": {
