@@ -1,0 +1,49 @@
+name: "CI CLI"
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+    workflow_dispatch:
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - name: Lint Termz
+              run: npm run lint
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - name: Format Termz
+              run: npm run format -- --check
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - name: Build Termz
+              run: npm run build

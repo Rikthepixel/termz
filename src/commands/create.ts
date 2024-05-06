@@ -14,7 +14,7 @@ type TabsPromptConfig = {
     file: string;
 };
 
-const tabsPrompt = createPrompt<TerminalTab[], TabsPromptConfig>((config, done) => {
+const tabsPrompt = createPrompt<TerminalTab[], TabsPromptConfig>(() => {
     const [size, setSize] = useState(() => windowSize.get());
     const [tabs, tabsHistory] = useHistory<TerminalTab[]>([{}, {}]);
     const [unboundSelectedTab, setSelectedTab] = useState(0);
@@ -70,13 +70,13 @@ const tabsPrompt = createPrompt<TerminalTab[], TabsPromptConfig>((config, done) 
                 if (focus === "tabs") {
                     tabsHistory.push([...tabs, {}]);
                 }
-                if (focus === "panes") {
-                }
+                // if (focus === "panes") {
+                // }
             }
 
             // Starting directory
-            if (key.name === "s") {
-            }
+            // if (key.name === "s") {
+            // }
 
             if (key.name === "d") {
                 // Delete selection either pane or tab
@@ -175,8 +175,7 @@ async function createAction() {
     //         return existsSync(input) ? "Profile already exists. Please pick a different name" : true;
     //     },
     // });
-
-    const tabs = await tabsPrompt({
+    await tabsPrompt({
         file: process.cwd(),
     });
     //
