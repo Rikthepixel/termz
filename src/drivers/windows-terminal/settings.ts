@@ -1,8 +1,10 @@
 import { existsSync } from "fs";
 import { readJsonFile } from "src/utils/file";
 import { resolveUserHome } from "src/utils/path";
+import { asyncPipe } from "src/utils/pipe";
 import { err, ok } from "src/utils/result";
-import { Infer, array, optional, string, type, validate } from "superstruct";
+import { validate } from "src/utils/validation";
+import { Infer, array, optional, string, type } from "superstruct";
 
 const WtProfileSchema = type({
     guid: string(),
@@ -56,17 +58,9 @@ async function getWtSettingsPath() {
 }
 
 export async function readWtSettings() {
-    const settings = await getWtSettingsPath();
-    const mapped = settings
-        .map(readJsonFile)
-        // .resolve()
-        // .then((r) => r.flat());
-
-    // .then((r) => {
-    //     return r.flatMap((content) => {
-    //         const validationResult = validate(content, WtSettingsSchema, { coerce: true });
-    //         if (validationResult[0]) return err(validationResult[0]);
-    //         return ok(validationResult[1]);
-    //     });
-    // });
+    return asyncPipe(
+        getWtSettingsPath(),
+        (r) => r.flatMapPromise(readJsonFile),
+        (r) => r.flatMap((content) => validate(content, WtSettingsSchema, true)),
+    );
 }

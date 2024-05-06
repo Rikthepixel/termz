@@ -37,7 +37,15 @@ export module Result {
         mapper: (value: T) => M,
     ): Result<GetOk<M>, E | GetErr<M>> {
         if (this.type !== "ok") return this;
-        return mapper(this.value);
+        return mapper(this.value) as any;
+    }
+
+    export async function flatMapPromise<M extends Result<unknown, unknown>, T, E>(
+        this: Result<T, E>,
+        mapper: (value: T) => M | Promise<M>,
+    ): Promise<Result<GetOk<M>, E | GetErr<M>>> {
+        if (this.type !== "ok") return this;
+        return Promise.resolve(mapper(this.value)) as any;
     }
 
     export function match<MT, ME, T, E>(
@@ -55,7 +63,7 @@ export module Result {
         }
     }
 
-    export function resolve<T, E>(this: Result<T, E>): Promise<Result<Awaited<T>, Awaited<E>>> {
+    export function promise<T, E>(this: Result<T, E>): Promise<Result<Awaited<T>, Awaited<E>>> {
         return new Promise((resolve) => {});
     }
 

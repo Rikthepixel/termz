@@ -16,22 +16,21 @@ const EXTENSION_ID = "rikthepixel.termz";
 const EXTENSION_MIN_INSTALL_VERSION = "1.1.0";
 const SUPPORTED_EXTENSION_VERSION = ">=1.1.0";
 
-function readRegistry() {
-    return readFile(SOCKET_REGISTRY_FILE).then((result) =>
-        result.flatMap((content) => {
-            content = content
-                .toString()
-                .split("\n")
-                .filter((line) => line !== "")
-                .join(",");
+async function readRegistry() {
+    const result = await readFile(SOCKET_REGISTRY_FILE);
+    return result.flatMap((content) => {
+        content = content
+            .toString()
+            .split("\n")
+            .filter((line) => line !== "")
+            .join(",");
 
-            try {
-                return ok(JSON.parse(`{${content}}`) as Record<string, string>);
-            } catch (e) {
-                return err(e as SyntaxError);
-            }
-        }),
-    );
+        try {
+            return ok(JSON.parse(`{${content}}`) as Record<string, string>);
+        } catch (e) {
+            return err(e as SyntaxError);
+        }
+    });
 }
 
 /**
@@ -76,8 +75,6 @@ async function syncExtension(cli: string, extensionId: string) {
         .split("\n")
         .map((line) => line.split("@"))
         .find((line) => line[0]!.endsWith(".termz"));
-
-    console.log(cli, foundExtension);
 
     if (!foundExtension) {
         return await installExtension(cli, extensionId);
