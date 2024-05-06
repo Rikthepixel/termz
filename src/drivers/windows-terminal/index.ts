@@ -26,7 +26,7 @@ export default {
                     await makeTab(tab, settings);
                 }
 
-                for (const _ of tabs) {
+                for (let i = 0; i < tabs.length; i++) {
                     await focusPrevious();
                 }
             },

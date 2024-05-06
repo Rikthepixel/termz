@@ -1,0 +1,55 @@
+name: "CI VSCode"
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - "plugins/vscode/**"
+    pull_request:
+        paths:
+            - "plugins/vscode/**"
+    workflow_dispatch:
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - name: Lint Termz VSCode
+              run: npm run lint -w plugins/vscode
+
+    format:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - name: Format Termz
+              run: npm run format -- --check
+
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Setup node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - name: Install dependencies
+              run: npm i -ws --include-workspace-root
+            - name: Build Termz VSCode
+              run: npm run build -w plugins/vscode

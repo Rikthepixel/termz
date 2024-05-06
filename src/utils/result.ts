@@ -3,7 +3,7 @@ export type Err<T> = { type: "err"; error: T } & typeof Result;
 export type Result<T, E> = Ok<T> | Err<E>;
 export type MaybePromise<T> = T | Promise<T>;
 
-export module Result {
+export namespace Result {
     export type GetOk<TPossible> = TPossible extends Ok<infer T> ? T : never;
     export type GetErr<TPossible> = TPossible extends Err<infer T> ? T : never;
     type IsNever<T> = (T extends never ? true : false) extends true ? true : false;
