@@ -1,6 +1,5 @@
 import { Driver } from "src/models/driver";
 import { EoentError } from "src/utils/file";
-import { logErrorBanner, logStructError } from "src/utils/logging";
 import { StructError } from "superstruct";
 import { NoWtSettingsError, readWtSettings } from "./settings";
 import { focusPrevious, makeTab } from "./render";
@@ -17,13 +16,13 @@ export default {
     detect() {
         return criteria(Boolean(process.env.WT_SESSION), Boolean(process.env.WT_PROFILE_ID));
     },
-    async open(profile) {
+    async open(logger, profile) {
         const tabs = profile.tabs;
 
         return (await readWtSettings()).match(
             async (settings) => {
                 for (const tab of tabs) {
-                    await makeTab(tab, settings);
+                    await makeTab(logger, tab, settings);
                 }
 
                 for (let i = 0; i < tabs.length; i++) {
@@ -31,28 +30,26 @@ export default {
                 }
             },
             (error) => {
-                console.log();
+                logger.pad();
 
                 if (error instanceof EoentError) {
-                    logErrorBanner(`Failed to read windows terminal settings, perhaps check if it exists.`);
-                    console.log(error);
+                    logger.error(`Failed to read windows terminal settings, perhaps check if it exists.`, error);
                 } else if (error instanceof SyntaxError) {
-                    logErrorBanner(`The contents of the windows terminal profile were not valid JSON`);
-                    console.log(error);
+                    logger.error(`The contents of the windows terminal profile were not valid JSON`, error);
                 } else if (error instanceof StructError) {
-                    logStructError(
+                    logger.structError(
                         `The JSON contents of the windows terminal profile didn't adhere to the expected structure`,
                         error,
                     );
                 } else if (error instanceof NoWtSettingsError) {
-                    logErrorBanner(`Failed to read Windows terminal settings, perhaps check if it exists.`);
-                    console.log("Attempted to find Windows terminal settings at the following locations");
-                    for (const path of error.paths) {
-                        console.log("-", path);
-                    }
+                    logger.error(
+                        `Failed to read Windows terminal settings, perhaps check if it exists.`,
+                        "Attempted to find Windows terminal settings at the following locations\n",
+                        error.paths.map((path) => `- ${path}`).join("\n"),
+                    );
                 }
 
-                console.log();
+                logger.pad();
             },
         );
     },

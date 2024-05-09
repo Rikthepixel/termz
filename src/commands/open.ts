@@ -3,13 +3,13 @@ import { Argument, Command } from "commander";
 import { readProfile } from "src/profile";
 import { drivers } from "src/drivers";
 import { StructError } from "superstruct";
-import { logErrorBanner, logStructError } from "src/utils/logging";
+import { Logger } from "src/utils/logging";
 import { EoentError } from "src/utils/file";
 import { Driver } from "src/models/driver";
 import { logIncompatibleFeatures } from "src/utils/driver";
 
-async function openAction(profileFile: string) {
-    console.log();
+async function openAction(logger: Logger, profileFile: string) {
+    logger.pad();
 
     let likelyhood = 0;
     let driver: null | Driver = null;
@@ -23,37 +23,37 @@ async function openAction(profileFile: string) {
     }
 
     if (!driver) {
-        logErrorBanner("No terminal/multiplexer could be detected.");
-        console.log("It may not be supported yet, consider opening an issue on the Termz GitHub\n");
+        logger.error(
+            "No terminal/multiplexer could be detected.",
+            "It may not be supported yet, consider opening an issue on the Termz GitHub\n",
+        );
         return;
     }
 
-    console.log(chalk.gray("Detected terminal/multiplexer:"), driver.name);
+    logger.log(chalk.gray("Detected terminal/multiplexer:"), driver.name);
 
     const profileResult = await readProfile(profileFile);
     profileResult.match(
         async (profile) => {
-            console.log(chalk.gray(`Setting up:`), profileFile);
-            
-            logIncompatibleFeatures(profile, driver.features);
-            await driver.open(profile);
+            logger.log(chalk.gray(`Setting up:`), profileFile);
 
-            console.log(chalk.greenBright("Successfully set-up terminal session 🎉\n"));
+            logIncompatibleFeatures(logger, profile, driver.features);
+            await driver.open(logger, profile);
+
+            logger.log(chalk.greenBright("Successfully set-up terminal session 🎉\n"));
         },
         (error) => {
-            console.log();
+            logger.pad();
 
             if (error instanceof EoentError) {
-                logErrorBanner(`Failed to read "${profileFile}", perhaps check if it exists.`);
-                console.log(error);
+                logger.error(`Failed to read "${profileFile}", perhaps check if it exists.`, error);
             } else if (error instanceof SyntaxError) {
-                logErrorBanner(`The contents of "${profileFile}" was not valid JSON`);
-                console.log(error);
+                logger.error(`The contents of "${profileFile}" was not valid JSON`, error);
             } else if (error instanceof StructError) {
-                logStructError(`The JSON contents "${profileFile}" didn't adhere to the expected structure`, error);
+                logger.structError(`The JSON contents "${profileFile}" didn't adhere to the expected structure`, error);
             }
 
-            console.log();
+            logger.pad();
         },
     );
 }
@@ -61,4 +61,4 @@ async function openAction(profileFile: string) {
 export const openCommand = new Command("open")
     .description("opens a termz profile")
     .addArgument(new Argument("[profile]", "the profile to open").default(".termz", ".termz"))
-    .action(openAction);
+    .action((profileFile) => openAction(Logger.fromCmd(openCommand), profileFile));

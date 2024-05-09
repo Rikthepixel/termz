@@ -3,6 +3,7 @@ import { SupportedDrivers } from "src/drivers";
 import { Driver, DriverFeature } from "src/models/driver";
 import { Profile } from "src/models/profile";
 import { TerminalPaneBase } from "src/models/terminal-pane-base";
+import { Logger } from "./logging";
 
 export function shouldRender(pane: TerminalPaneBase, identifier: SupportedDrivers) {
     if (pane.include && pane.exclude) {
@@ -29,7 +30,9 @@ export function criteria(...clauses: boolean[]) {
     return trueCount;
 }
 
-export function logIncompatibleFeatures(profile: Profile, features: Driver["features"]) {
+export function logIncompatibleFeatures(logger: Logger, profile: Profile, features: Driver["features"]) {
+    if (logger.level < 3) return;
+
     const usedFeatures: Record<DriverFeature, boolean> = {
         tabs: true,
         script: false,
@@ -56,10 +59,10 @@ export function logIncompatibleFeatures(profile: Profile, features: Driver["feat
 
     if (warnings.length === 0) return;
 
-    console.log();
-    console.log(chalk.bgHex("#f08506").white.bold(`   Feature incompatibilities   `));
+    logger.pad();
+    logger.verbose(chalk.bgHex("#f08506").white.bold(`   Feature incompatibilities   `));
     for (const warning of warnings) {
-        console.log(`- ${chalk.hex("#f08506")(warning)}`);
+        logger.verbose(`- ${chalk.hex("#f08506")(warning)}`);
     }
-    console.log();
+    logger.pad();
 }
