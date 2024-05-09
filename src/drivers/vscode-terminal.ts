@@ -6,7 +6,7 @@ import path from "path";
 import { createConnection } from "net";
 import { Profile } from "src/models/profile";
 import which from "which";
-import { readFile } from "src/utils/file";
+import { EoentError, readFile } from "src/utils/file";
 import { err, ok } from "src/utils/result";
 import { satisfies as satisfiesVersion } from "semver";
 import { criteria } from "src/utils/driver";
@@ -115,15 +115,33 @@ export default {
             Boolean(process.env.TERMZ_VSCODE_UUID),
         );
     },
-    async open(profile) {
+    async open(logger, profile) {
         const [clis, extensionId] = await Promise.all([getInstalledClis(), getExtensionId()]);
 
         await Promise.all(clis.map((cli) => syncExtension(cli, extensionId)));
         await new Promise<void>((resolve) => setTimeout(resolve, 250)); // Wait for a bit so that the plugin has time to start up
 
-        return (await readRegistry())
+        const registryResult = await readRegistry();
+        const sendProfileResult = await registryResult
             .map((registry) => Object.values(registry).map((ipcPath) => sendProfileToPipe(profile, ipcPath)))
             .map(Promise.all.bind(Promise))
             .promise();
+
+        sendProfileResult.match(
+            () => null,
+            (error) => {
+                if (error instanceof EoentError) {
+                    logger.error(
+                        "Failed to read VSCode registry. Perhaps restart your VSCode windows and try it again.",
+                        error,
+                    );
+                } else if (error instanceof SyntaxError) {
+                    logger.error(
+                        "VSCode registry appears to be in an inproper format. Please file a bug-report with the error listed below",
+                        error,
+                    );
+                }
+            },
+        );
     },
 } satisfies Driver;
