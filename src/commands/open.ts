@@ -8,7 +8,7 @@ import { EoentError } from "src/utils/file";
 import { Driver } from "src/models/driver";
 import { logIncompatibleFeatures } from "src/utils/driver";
 
-async function runAction(profileFile: string) {
+async function openAction(profileFile: string) {
     console.log();
 
     let likelyhood = 0;
@@ -58,8 +58,7 @@ async function runAction(profileFile: string) {
     );
 }
 
-export const runCommand = new Command("run")
-    .aliases(["open"])
+export const openCommand = new Command("open")
     .description("opens a termz profile")
     .addArgument(new Argument("[profile]", "the profile to open").default(".termz", ".termz"))
-    .action(runAction);
+    .action(openAction);
