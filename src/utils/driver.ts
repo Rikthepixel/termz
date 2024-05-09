@@ -31,6 +31,8 @@ export function criteria(...clauses: boolean[]) {
 }
 
 export function logIncompatibleFeatures(logger: Logger, profile: Profile, features: Driver["features"]) {
+    if (logger.level < 3) return;
+
     const usedFeatures: Record<DriverFeature, boolean> = {
         tabs: true,
         script: false,
@@ -58,9 +60,9 @@ export function logIncompatibleFeatures(logger: Logger, profile: Profile, featur
     if (warnings.length === 0) return;
 
     logger.pad();
-    logger.log(chalk.bgHex("#f08506").white.bold(`   Feature incompatibilities   `));
+    logger.verbose(chalk.bgHex("#f08506").white.bold(`   Feature incompatibilities   `));
     for (const warning of warnings) {
-        logger.log(`- ${chalk.hex("#f08506")(warning)}`);
+        logger.verbose(`- ${chalk.hex("#f08506")(warning)}`);
     }
     logger.pad();
 }

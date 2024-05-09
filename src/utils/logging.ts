@@ -11,7 +11,7 @@ export const LOG_LEVELS = {
 type LogLevel = (typeof LOG_LEVELS)[keyof typeof LOG_LEVELS];
 
 export class Logger {
-    constructor(private level: LogLevel) {}
+    constructor(public level: LogLevel) {}
 
     static fromCmd(cmd: Command) {
         const opts = cmd.optsWithGlobals();
@@ -35,7 +35,7 @@ export class Logger {
         console.log(...text);
     }
 
-    debug(...text: string[]) {
+    verbose(...text: string[]) {
         if (this.level < 3) return;
         console.log(...text);
     }

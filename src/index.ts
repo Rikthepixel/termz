@@ -5,7 +5,8 @@ import { openCommand } from "./commands/open";
 const program = new Command("termz")
     .description("Setup terminal sessions with ease")
     .version("0.4.0", "-v, --version")
-    .option("-q, --quiet", "Prevents unnecessary output", false);
+    .option("--quiet", "Prevents unnecessary output", false)
+    .option("--verbose", "Logs everything, helpful for debugging", false);
 
 program.addCommand(openCommand, { isDefault: true });
 //.addCommand(createCommand);

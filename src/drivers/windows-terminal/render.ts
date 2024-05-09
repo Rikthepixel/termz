@@ -4,6 +4,7 @@ import { $ } from "execa";
 import { TerminalPane } from "src/models/terminal-pane";
 import chalk from "chalk";
 import { shouldRender } from "src/utils/driver";
+import { Logger } from "src/utils/logging";
 
 const supportedCommandLines = [
     {
@@ -35,11 +36,11 @@ function findProfile(profiles: WtProfile[], defaultIdentifier: string, identifie
     );
 }
 
-function makeScriptArgs(script: string | string[], profile: WtProfile): string[] {
+function makeScriptArgs(logger: Logger, script: string | string[], profile: WtProfile): string[] {
     profile.commandline = profile.commandline?.replace("%SystemRoot%", process.env.SystemRoot ?? "%SystemRoot%");
     const profileCmd = profile.commandline ?? profile.source;
     if (!profileCmd) {
-        console.warn(chalk.yellowBright`No commandline or source specified in ${profile.guid} profile`);
+        logger.verbose(chalk.yellowBright`No commandline or source specified in ${profile.guid} profile`);
         return [];
     }
 
@@ -48,11 +49,11 @@ function makeScriptArgs(script: string | string[], profile: WtProfile): string[]
         return cmd.makeArgs(profile, script);
     }
 
-    console.warn(chalk.yellowBright`Commandline not supported, can't spawn session with specified script`);
+    logger.verbose(chalk.yellowBright`Commandline not supported, can't spawn session with specified script`);
     return [];
 }
 
-export async function makePane(pane: TerminalPane, settings: WtSettings) {
+export async function makePane(logger: Logger, pane: TerminalPane, settings: WtSettings) {
     if (!shouldRender(pane, "wt")) {
         return;
     }
@@ -85,16 +86,16 @@ export async function makePane(pane: TerminalPane, settings: WtSettings) {
     if (pane.script) {
         const profile = findProfile(settings.profiles.list, settings.defaultProfile, pane.profile);
         if (profile) {
-            args.push(...makeScriptArgs(pane.script, profile));
+            args.push(...makeScriptArgs(logger, pane.script, profile));
         } else {
-            console.warn(chalk.yellowBright`Profile couldn't be found. Can't run specified script`);
+            logger.verbose(chalk.yellowBright`Profile couldn't be found. Can't run specified script`);
         }
     }
 
     await $`wt -w 0 sp ${args}`;
 }
 
-export async function makeTab(tab: TerminalTab, settings: WtSettings) {
+export async function makeTab(logger: Logger, tab: TerminalTab, settings: WtSettings) {
     if (!shouldRender(tab, "wt")) {
         return;
     }
@@ -115,16 +116,16 @@ export async function makeTab(tab: TerminalTab, settings: WtSettings) {
     if (tab.script) {
         const profile = findProfile(settings.profiles.list, settings.defaultProfile, tab.profile);
         if (profile) {
-            args.push(...makeScriptArgs(tab.script, profile));
+            args.push(...makeScriptArgs(logger, tab.script, profile));
         } else {
-            console.warn(chalk.yellowBright`Profile couldn't be found. Can't run specified script`);
+            logger.verbose(chalk.yellowBright`Profile couldn't be found. Can't run specified script`);
         }
     }
 
     await $`wt -w 0 nt ${args}`;
 
     for (const pane of tab.panes ?? []) {
-        await makePane(pane, settings);
+        await makePane(logger, pane, settings);
     }
 }
 

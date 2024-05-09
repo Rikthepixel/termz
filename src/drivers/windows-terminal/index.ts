@@ -22,7 +22,7 @@ export default {
         return (await readWtSettings()).match(
             async (settings) => {
                 for (const tab of tabs) {
-                    await makeTab(tab, settings);
+                    await makeTab(logger, tab, settings);
                 }
 
                 for (let i = 0; i < tabs.length; i++) {
