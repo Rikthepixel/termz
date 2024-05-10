@@ -31,7 +31,14 @@
         "onStartupFinished"
     ],
     "main": "./out/extension.js",
-    "contributes": {},
+    "contributes": {
+        "languages": [
+            {
+                "id": "json",
+                "extensions": [".termz"]
+            }
+        ]
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/Rikthepixel/termz.git"
