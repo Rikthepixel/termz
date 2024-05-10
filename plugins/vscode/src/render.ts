@@ -29,6 +29,7 @@ export function makePane(pane: TerminalPane, parent: Terminal) {
     const paneTerminal = window.createTerminal({
         name: pane.displayName,
         cwd: pane.directory,
+        isTransient: true,
         location: {
             parentTerminal: parent,
             viewColumn: size,
@@ -51,6 +52,7 @@ export function makeTab(tab: TerminalTab) {
     const tabTerminal = window.createTerminal({
         name: tab.displayName,
         cwd: tab.directory,
+        isTransient: true,
     });
 
     if (tab.script) {
