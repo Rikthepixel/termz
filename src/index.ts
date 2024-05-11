@@ -4,7 +4,7 @@ import { openCommand } from "./commands/open";
 
 const program = new Command("termz")
     .description("Setup terminal sessions with ease")
-    .version("0.4.0", "-v, --version")
+    .version("0.5.0", "-v, --version")
     .option("--quiet", "Prevents unnecessary output", false)
     .option("--verbose", "Logs everything, helpful for debugging", false);
 

@@ -44,6 +44,11 @@ Open the VSCode integrated terminal and type one of the following:
 
 ## Release Notes
 
+### [1.2.0] Quality of life
+
+- Made terminals created by Termz transient. When you close your VSCode Termz terminals aren't persisted.
+- `.termz` files are automatically associated with `JSON`.
+
 ### [1.1.0] Multiple scripts
 
 Termz `0.3.0` added support for executing multiple scripts. Now the VSCode plugin supports it too.

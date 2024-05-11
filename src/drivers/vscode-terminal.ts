@@ -14,8 +14,8 @@ import { criteria } from "src/utils/driver";
 const SOCKET_REGISTRY_FILE = path.join(os.tmpdir(), "termz-vscode-sockets");
 const KNOWN_CLIS = ["code", "code-insiders", "codium", "codium-insiders"] as const;
 const EXTENSION_ID = "rikthepixel.termz";
-const EXTENSION_MIN_INSTALL_VERSION = "1.1.0";
-const SUPPORTED_EXTENSION_VERSION = ">=1.1.0";
+const EXTENSION_MIN_INSTALL_VERSION = "1.2.0";
+const SUPPORTED_EXTENSION_VERSION = ">=1.2.0";
 
 async function readRegistry() {
     return (await readFile(SOCKET_REGISTRY_FILE)).map((content) => {
