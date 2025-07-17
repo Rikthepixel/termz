@@ -2,11 +2,11 @@ import chalk from "chalk";
 import { Argument, Command } from "commander";
 import { readProfile } from "src/profile";
 import { drivers, defaultWindowsDriver } from "src/drivers";
-import { StructError } from "superstruct";
 import { Logger } from "src/utils/logging";
 import { EoentError } from "src/utils/file";
 import { Driver } from "src/models/driver";
 import { logIncompatibleFeatures } from "src/utils/driver";
+import * as z from "zod/mini";
 
 async function openAction(logger: Logger, profileFile: string) {
     logger.pad();
@@ -54,8 +54,8 @@ async function openAction(logger: Logger, profileFile: string) {
                 logger.error(`Failed to read "${profileFile}", perhaps check if it exists.`, error);
             } else if (error instanceof SyntaxError) {
                 logger.error(`The contents of "${profileFile}" was not valid JSON`, error);
-            } else if (error instanceof StructError) {
-                logger.structError(`The JSON contents "${profileFile}" didn't adhere to the expected structure`, error);
+            } else if (error instanceof z.core.$ZodError) {
+                logger.validationError(`The JSON contents "${profileFile}" didn't adhere to the expected structure`, error);
             }
 
             logger.pad();

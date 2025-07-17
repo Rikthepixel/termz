@@ -1,13 +1,13 @@
 import { supportedDrivers } from "src/drivers";
-import { Infer, array, enums, object, optional, string, union } from "superstruct";
+import * as z from "zod/mini";
 
-export const TerminalPaneBaseSchema = object({
-    exclude: optional(array(enums(supportedDrivers))),
-    include: optional(array(enums(supportedDrivers))),
-    displayName: optional(string()),
-    profile: optional(string()),
-    directory: optional(string()),
-    script: optional(union([string(), array(string())])),
+export const TerminalPaneBase = z.object({
+    exclude: z.optional(z.array(z.literal(supportedDrivers))),
+    include: z.optional(z.array(z.literal(supportedDrivers))),
+    displayName: z.optional(z.string()),
+    profile: z.optional(z.string()),
+    directory: z.optional(z.string()),
+    script: z.optional(z.union([z.string(), z.array(z.string())])),
 });
 
-export type TerminalPaneBase = Infer<typeof TerminalPaneBaseSchema>;
+export type TerminalPaneBase = z.infer<typeof TerminalPaneBase>;

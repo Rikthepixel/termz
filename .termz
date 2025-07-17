@@ -1,4 +1,5 @@
 {
+  "$schema": "./schema.json",
   "tabs": [
     { "displayName": "nvim", "script": "nvim .", "exclude": ["vscode"] },
     { "displayName": "commands", "script": "git status" }

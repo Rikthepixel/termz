@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "tabs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "exclude": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "wt",
+                "vscode"
+              ]
+            }
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "wt",
+                "vscode"
+              ]
+            }
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "profile": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          },
+          "script": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ]
+          },
+          "panes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "exclude": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "wt",
+                      "vscode"
+                    ]
+                  }
+                },
+                "include": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "wt",
+                      "vscode"
+                    ]
+                  }
+                },
+                "displayName": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "directory": {
+                  "type": "string"
+                },
+                "script": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  ]
+                },
+                "axis": {
+                  "type": "string",
+                  "enum": [
+                    "vertical",
+                    "horizontal"
+                  ]
+                },
+                "size": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "axis"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "tabs"
+  ],
+  "additionalProperties": {},
+  "title": "Termz Schema",
+  "description": "Describes how the terminal sessions should be opened"
+}

@@ -16,6 +16,14 @@ export namespace Result {
         return Object.setPrototypeOf({ type: "err", error: error }, Result);
     }
 
+    export function into<T, E>(fn: () => T): Result<T, E> {
+        try {
+            return ok(fn());
+        } catch (error) {
+            return err(error as E);
+        }
+    }
+
     export function map<M, MT = never, ME = never, T = unknown, E = unknown>(
         this: Result<T, E>,
         mapper: (value: T) => M | Result<MT, ME>,

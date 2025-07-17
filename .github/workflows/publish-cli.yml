@@ -101,13 +101,13 @@ jobs:
               uses: laputansoft/github-tag-action@v4.6
               with:
                   github_token: ${{ secrets.GITHUB_TOKEN }}
-                  tag: cli-v${{ needs.package-version.outputs.version }}
+                  tag: v${{ needs.package-version.outputs.version }}
             - name: Create Release
               uses: ncipollo/release-action@v1.9.0
               with:
                   name: Termz CLI v${{ needs.package-version.outputs.version }}
                   body: ${{ steps.tag.outputs.changelog }}
-                  tag: cli-v${{ needs.package-version.outputs.version }}
+                  tag: v${{ needs.package-version.outputs.version }}
                   generateReleaseNotes: true
                   draft: true
                   makeLatest: true

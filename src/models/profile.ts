@@ -1,8 +1,8 @@
-import { Infer, array, object } from "superstruct";
-import { TerminalTabSchema } from "./terminal-tab";
+import * as z from "zod/mini";
+import { TerminalTab } from "./terminal-tab";
 
-export const ProfileSchema = object({
-    tabs: array(TerminalTabSchema),
+export const Profile = z.object({
+    tabs: z.array(TerminalTab),
 });
 
-export type Profile = Infer<typeof ProfileSchema>;
+export type Profile = z.infer<typeof Profile>;

@@ -2,26 +2,25 @@ import { existsSync } from "fs";
 import { readJsonFile } from "src/utils/file";
 import { resolveUserHome } from "src/utils/path";
 import { asyncPipe } from "src/utils/pipe";
-import { err, ok } from "src/utils/result";
-import { validate } from "src/utils/validation";
-import { Infer, array, optional, string, type } from "superstruct";
+import { Result, err, ok } from "src/utils/result";
+import * as z from "zod/mini";
 
-const WtProfileSchema = type({
-    guid: string(),
-    name: string(),
-    commandline: optional(string()),
-    source: optional(string()),
+const WtProfileSchema = z.looseObject({
+    guid: z.string(),
+    name: z.string(),
+    commandline: z.optional(z.string()),
+    source: z.optional(z.string()),
 });
 
-const WtSettingsSchema = type({
-    defaultProfile: string(),
-    profiles: type({
-        list: array(WtProfileSchema),
+const WtSettingsSchema = z.looseObject({
+    defaultProfile: z.string(),
+    profiles: z.looseObject({
+        list: z.array(WtProfileSchema),
     }),
 });
 
-export type WtSettings = Infer<typeof WtSettingsSchema>;
-export type WtProfile = Infer<typeof WtProfileSchema>;
+export type WtSettings = z.infer<typeof WtSettingsSchema>;
+export type WtProfile = z.infer<typeof WtProfileSchema>;
 
 export class NoWtSettingsError extends Error {
     constructor(
@@ -61,6 +60,6 @@ export async function readWtSettings() {
     return asyncPipe(
         getWtSettingsPath(),
         (r) => r.mapPromise(readJsonFile),
-        (r) => r.map((content) => validate(content, WtSettingsSchema, true)),
+        (r) => r.map((content) => Result.into(() => WtSettingsSchema.parse(content))),
     );
 }

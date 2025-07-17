@@ -1,9 +1,9 @@
 import { Driver } from "src/models/driver";
 import { EoentError } from "src/utils/file";
-import { StructError } from "superstruct";
 import { NoWtSettingsError, readWtSettings } from "./settings";
 import { focusPrevious, makeTab } from "./render";
 import { criteria } from "src/utils/driver";
+import * as z from "zod/mini";
 import which from "which";
 
 export default {
@@ -40,8 +40,8 @@ export default {
                     logger.error(`Failed to read windows terminal settings, perhaps check if it exists.`, error);
                 } else if (error instanceof SyntaxError) {
                     logger.error(`The contents of the windows terminal profile were not valid JSON`, error);
-                } else if (error instanceof StructError) {
-                    logger.structError(
+                } else if (error instanceof z.core.$ZodError) {
+                    logger.validationError(
                         `The JSON contents of the windows terminal profile didn't adhere to the expected structure`,
                         error,
                     );

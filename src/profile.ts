@@ -1,15 +1,16 @@
-import { Profile, ProfileSchema } from "./models/profile";
+import { Profile } from "./models/profile";
 import { readJsonFile } from "./utils/file";
 import { resolveAbsolute } from "./utils/path";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { asyncPipe } from "./utils/pipe";
-import { validate } from "./utils/validation";
+import { Result } from "./utils/result";
+import * as z from "zod/mini";
 
 export function readProfile(profileFile: string) {
     return asyncPipe(
         readJsonFile(profileFile),
-        (r) => r.map((content) => validate(content, ProfileSchema)),
+        (r) => r.map((content) => Result.into<Profile, z.core.$ZodError>(() => Profile.parse(content))),
         (r) =>
             r.map((profile) => {
                 for (const tab of profile.tabs) {
