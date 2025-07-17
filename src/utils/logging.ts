@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { Command } from "commander";
-import { StructError } from "superstruct";
+import * as z from "zod/mini";
 
 export const LOG_LEVELS = {
     quiet: 1,
@@ -51,14 +51,15 @@ export class Logger {
         console.log(chalk.bgRed.white(`   ${text}   `));
     }
 
-    structError(message: string, error: StructError) {
+    validationError(message: string, error: z.core.$ZodError) {
         if (this.level < 2) return;
         this.errorBanner(message);
-        for (const failure of error.failures()) {
+        for (const issue of error.issues) {
+            
             console.log(
                 "-",
-                chalk.redBright(`"${failure.key}" was expected to be ${failure.type}`),
-                chalk.gray(`(${failure.message})`),
+                chalk.redBright(`"${issue.path.join(".")}" threw code: ${issue.code}`),
+                chalk.gray(`(${issue.message})`),
             );
         }
     }

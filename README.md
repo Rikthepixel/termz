@@ -7,6 +7,18 @@ Setup terminals on your own terms.
 -   Windows Terminal
 -   VSCode & VSCodium (`v1.70` and above)
 
+## How to Use
+
+```bash
+termz
+```
+
+```json
+{
+    "$schema": ""
+}
+```
+
 ## Roadmaps
 
 ### V1 Roadmap
@@ -26,8 +38,4 @@ Setup terminals on your own terms.
 -   Support multiplexers (drivers):
     -   tmux
 -   VSCode plugin acks that it is done running
-
-### V2 Roadmap
-
--   Rewrite in Rust.
 -   Publish on `winget`, `apt`, `apk`, etc.

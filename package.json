@@ -6,6 +6,8 @@
     "license": "GPL-3.0",
     "scripts": {
         "build": "tsup",
+        "postbuild": "npm run build:generate-json-schema",
+        "build:generate-json-schema": "tsx ./scripts/generate-json-schema.ts",
         "watch": "tsup --watch",
         "dev": "tsx ./src/index.ts",
         "preview": "node ./bin/index.js",
@@ -31,9 +33,9 @@
         "commander": "^12.0.0",
         "execa": "^8.0.1",
         "semver": "^7.6.0",
-        "superstruct": "^1.0.4",
         "which": "^4.0.0",
-        "window-size": "^1.1.1"
+        "window-size": "^1.1.1",
+        "zod": "^4.0.5"
     },
     "devDependencies": {
         "@eslint/js": "^9.2.0",
