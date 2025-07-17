@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { Argument, Command } from "commander";
 import { readProfile } from "src/profile";
-import { drivers } from "src/drivers";
+import { drivers, defaultWindowsDriver } from "src/drivers";
 import { StructError } from "superstruct";
 import { Logger } from "src/utils/logging";
 import { EoentError } from "src/utils/file";
@@ -22,7 +22,12 @@ async function openAction(logger: Logger, profileFile: string) {
         }
     }
 
-    if (!driver) {
+    if (likelyhood === 0 && process.platform === "win32") {
+        driver = defaultWindowsDriver;
+        likelyhood = 1; // Set a default likelihood for Windows Terminal
+    }
+
+    if (!driver || likelyhood === 0 || !(await driver?.validate())) {
         logger.error(
             "No terminal/multiplexer could be detected.",
             "It may not be supported yet, consider opening an issue on the Termz GitHub\n",

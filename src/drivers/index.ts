@@ -9,3 +9,5 @@ export const drivers = [
     vscodeTerminal,
     // gnomeTerminal
 ];
+
+export const defaultWindowsDriver = windowsTerminal;

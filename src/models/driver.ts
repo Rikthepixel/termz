@@ -5,7 +5,8 @@ export type DriverFeature = "tabs" | "verticalPanes" | "horizontalPanes" | "scri
 
 export type Driver = {
     name: string;
-    features: Record<DriverFeature, true | string>;
+    features: Record<DriverFeature, boolean | string>;
     detect(): number;
+    validate(): Promise<boolean>;
     open(logger: Logger, profile: Profile): Promise<any>;
 };

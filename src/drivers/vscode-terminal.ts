@@ -115,6 +115,10 @@ export default {
             Boolean(process.env.TERMZ_VSCODE_UUID),
         );
     },
+    async validate() {
+        const clis = await getInstalledClis()
+        return clis.length > 0;
+    },
     async open(logger, profile) {
         const [clis, extensionId] = await Promise.all([getInstalledClis(), getExtensionId()]);
 

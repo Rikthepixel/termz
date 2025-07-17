@@ -4,6 +4,7 @@ import { StructError } from "superstruct";
 import { NoWtSettingsError, readWtSettings } from "./settings";
 import { focusPrevious, makeTab } from "./render";
 import { criteria } from "src/utils/driver";
+import which from "which";
 
 export default {
     name: "Windows Terminal",
@@ -15,6 +16,9 @@ export default {
     },
     detect() {
         return criteria(Boolean(process.env.WT_SESSION), Boolean(process.env.WT_PROFILE_ID));
+    },
+    async validate() {
+        return Boolean(which("wt", { nothrow: true }));
     },
     async open(logger, profile) {
         const tabs = profile.tabs;
